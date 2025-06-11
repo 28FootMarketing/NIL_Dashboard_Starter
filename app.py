@@ -97,6 +97,19 @@ if submitted:
             .to_csv('test_mode_log.csv', mode='a', index=False, header=False)
         success = True
         email_body = get_email_body(name, quiz_score)
+    st.success("✅ Your info has been recorded. We will follow up with NIL tips and updates.")
+    st.markdown('### 📄 Preview of Email Sent:')
+    st.code(email_body)
+    if st.button('📤 Resend Email'):
+        send_email(name, email, quiz_score)
+    if not test_mode:
+        record_to_sheet(name, email, school)
+        success, email_body = send_email(name, email, quiz_score)
+    else:
+        pd.DataFrame([[name, email, school, quiz_score]], columns=['Name', 'Email', 'School', 'Score']) \
+            .to_csv('test_mode_log.csv', mode='a', index=False, header=False)
+        success = True
+        email_body = get_email_body(name, quiz_score)
 
     st.success("✅ Your info has been recorded. We will follow up with NIL tips and updates.")
     st.markdown('### 📄 Preview of Email Sent:')
