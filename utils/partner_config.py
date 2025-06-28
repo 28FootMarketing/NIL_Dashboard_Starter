@@ -8,7 +8,7 @@ class PartnerConfigHelper:
         "partner_toggle_show_case_study": False,
         "partner_toggle_custom_cta": False,
         "partner_school_name": "Default University",
-        "show_partner_config_panel": False
+        "show_partner_config_panel": False  # Controls whether to display the panel
     }
 
     @classmethod
