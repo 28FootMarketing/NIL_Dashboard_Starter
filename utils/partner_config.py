@@ -9,15 +9,10 @@ PARTNER_TOGGLES = {
     "allow_partner_edits": "Allow Partner Edits"
 }
 
-    # Add more partner-specific settings here
-}
-
-def get_partner_config():
-    return {k: st.session_state.get(k, v) for k, v in PARTNER_TOGGLES.items()}
-
 def show_partner_toggle_panel():
     st.sidebar.subheader("🎛️ Partner Settings")
     for key, label in PARTNER_TOGGLES.items():
-        if key not in st.session_state:
-            st.session_state[key] = True
-        st.sidebar.checkbox(label, key=f"partner_toggle_{key}", value=st.session_state[key])
+        unique_key = f"partner_toggle_{key}"
+        if unique_key not in st.session_state:
+            st.session_state[unique_key] = True
+        st.session_state[unique_key] = st.sidebar.checkbox(label, key=unique_key, value=st.session_state[unique_key])
