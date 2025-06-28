@@ -11,15 +11,16 @@ from utils.case_studies import show_case_studies
 from utils.course_quiz import run_nil_course
 from utils.contact_handler import record_to_sheet, send_email, get_email_body
 
-st.set_page_config(page_title="NIL Moneymaker Agent", layout="centered")
+st.set_page_config(page_title="NextPlay NIL", layout="centered")
 test_mode = st.sidebar.checkbox("🧪 Enable Test Mode (Safe Demo)")
 
 if test_mode:
     st.sidebar.warning("Test Mode is ON — No data will be saved or emailed.")
     st.markdown('### ⚠️ TEST MODE: This is a safe demo version. No data will be sent or stored online.', unsafe_allow_html=True)
 
-st.title("🤖 NIL Moneymaker Agent")
-st.subheader("Your Personal NIL Deal Advisor")
+st.set_page_config(page_title="NextPlay NIL", layout="centered")
+st.title("🏈 NextPlay NIL")
+st.subheader("Your NIL Strategy & Branding Assistant")
 
 with st.expander("🎓 NIL Education"):
     run_nil_course()
