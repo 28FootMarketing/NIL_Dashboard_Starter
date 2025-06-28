@@ -2,6 +2,7 @@
 
 import streamlit as st
 
+
 TOGGLE_KEYS = {
     "step_1": "Show Step 1: NIL Readiness Quiz",
     "step_2": "Show Step 2: NIL Business Tools",
@@ -11,6 +12,9 @@ TOGGLE_KEYS = {
     "step_6": "Show Step 6: NIL Success Stories",
     "step_7": "Show Step 7: Contact Form & Updates",
 }
+
+def check_admin_access():
+    return st.sidebar.checkbox("👑 Admin Mode", key="admin_mode_checkbox")
 
 def check_admin_access():
     # This should be replaced with actual login logic
