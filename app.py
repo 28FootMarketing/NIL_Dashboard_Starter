@@ -11,24 +11,19 @@ from utils.case_studies import show_case_studies
 from utils.course_quiz import run_nil_course
 from utils.contact_handler import record_to_sheet, send_email, get_email_body
 
-# ================== PAGE CONFIG ==================
 st.set_page_config(page_title="NIL Moneymaker Agent", layout="centered")
-
-# ================== TEST MODE TOGGLE ==================
 test_mode = st.sidebar.checkbox("🧪 Enable Test Mode (Safe Demo)")
+
 if test_mode:
     st.sidebar.warning("Test Mode is ON — No data will be saved or emailed.")
     st.markdown('### ⚠️ TEST MODE: This is a safe demo version. No data will be sent or stored online.', unsafe_allow_html=True)
 
-# ================== HEADER ==================
 st.title("🤖 NIL Moneymaker Agent")
 st.subheader("Your Personal NIL Deal Advisor")
 
-# ================== STEP 1: EDUCATION ==================
 with st.expander("🎓 NIL Education"):
     run_nil_course()
 
-# ================== STEP 2: QUIZ ==================
 st.header("Step 1: NIL Readiness Quiz")
 quiz_score = 72 if test_mode else run_quiz()
 
@@ -38,7 +33,6 @@ if quiz_score:
     estimated_earnings = earnings_estimator(quiz_score)
     st.info(f"💰 Estimated NIL Earning Potential: ${estimated_earnings:,.2f}")
 
-# ================== STEP 3: TEMPLATES ==================
 st.header("Step 2: NIL Business Tools")
 deal_type = st.selectbox("Pick your need:", ["Brand Outreach Email", "Contract Template", "Social Media Post", "Thank You Note"])
 custom_name = st.text_input("Enter Athlete or Brand Name:")
@@ -48,11 +42,9 @@ if st.button("Generate My Template"):
     else:
         st.warning("Please enter a name or brand.")
 
-# ================== STEP 4: WIZARD ==================
 st.header("🧾 Step 3: NIL Deal Builder Wizard")
 run_wizard()
 
-# ================== STEP 5: PITCH DECK ==================
 st.header("📊 Step 4: NIL Pitch Deck Generator")
 with st.form("pitch_deck_form"):
     name = st.text_input("Your Name")
@@ -64,15 +56,12 @@ with st.form("pitch_deck_form"):
     if pitch_submitted:
         st.code(build_pitch_deck(name, sport, followers, stats, goals), language='markdown')
 
-# ================== STEP 6: CONTENT PLAN ==================
 st.header("📅 Step 5: Weekly Content Plan")
 display_calendar()
 
-# ================== STEP 7: SUCCESS STORIES ==================
 st.header("📚 Step 6: Real NIL Success Stories")
 show_case_studies()
 
-# ================== STEP 8: CONTACT FORM ==================
 st.header("📥 Step 7: Stay in the NIL Loop")
 with st.form("contact_form"):
     name = st.text_input("Your Full Name")
@@ -96,5 +85,4 @@ if submitted:
         if st.button('📤 Resend Email'):
             send_email(name, email, quiz_score)
 
-# ================== STEP 9: LEADERBOARD ==================
 display_leaderboard()
