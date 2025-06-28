@@ -13,6 +13,14 @@ TOGGLE_KEYS = {
     "step_6": "Show Step 6: NIL Success Stories",
     "step_7": "Show Step 7: Contact Form & Updates",
 }
+def get_toggle_states():
+    return {
+        "show_pitch_deck": st.session_state.get("show_pitch_deck", True),
+        "show_contract_generator": st.session_state.get("toggle_contract", True),
+        "lock_contact_form": st.session_state.get("toggle_contact_form", False),
+        "enable_ads": st.session_state.get("enable_ads", False),
+        # Add more as needed
+    }
 
 def get_toggle_states():
     """Returns the current toggle states for each step."""
