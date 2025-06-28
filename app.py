@@ -14,6 +14,14 @@ from utils.admin_tools import check_admin_access, show_admin_dashboard, get_togg
 from utils.partner_admin import show_partner_admin
 from utils.advertisements import show_ad
 from utils.partner_config import get_partner_config, show_partner_toggle_panel
+from utils.changelog_viewer import display_changelog
+from utils.admin_tools import check_admin_access
+
+if check_admin_access():
+    with st.sidebar.expander("📄 View Changelog"):
+        display_changelog()
+
+
 # from utils.advertisements import show_ad  # Optional future import
 
 st.set_page_config(page_title="NextPlay NIL", layout="centered")
@@ -140,6 +148,8 @@ if toggle_states.get("step_7", True):
             st.code(email_body)
             if st.button("📤 Resend Email"):
                 send_email(name, email, quiz_score)
+with st.sidebar.expander("📄 View Changelog"):
+    display_changelog()
 
 # Always show leaderboard
 display_leaderboard()
