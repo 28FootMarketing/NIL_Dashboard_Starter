@@ -1,0 +1,11 @@
+[2025-06-28 10:02 AM] Added ad scaffold: utils/advertisements.py
+[2025-06-28 10:04 AM] Implemented partner-specific toggles using partner_config.py
+[2025-06-28 10:06 AM] Imported advertisement and partner config modules in app.py
+[2025-06-28 10:08 AM] Added selected_sport session default in app.py
+[2025-06-28 10:10 AM] Re-scored the NextPlay NIL app using feature audit criteria
+[2025-06-28 10:12 AM] Exported a PDF version of the rescore report: NextPlay_NIL_Rescore_Report.pdf
+[2025-06-28 11:00] Added admin feature toggles and dashboard logic in `admin_tools.py`
+[2025-06-28 11:20] Integrated `get_toggle_states()` and `render_admin_banner()` into `app.py`
+[2025-06-28 11:35] Added ad support placeholder in `app.py` and `utils/advertisements.py`
+[2025-06-28 11:50] Integrated partner-specific config toggles with `partner_config.py`
+[2025-06-28 12:10] App rescore complete and PDF version of rescore report generated
