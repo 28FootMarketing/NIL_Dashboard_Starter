@@ -1,6 +1,4 @@
 
-# app.py
-
 import streamlit as st
 import pandas as pd
 
@@ -18,7 +16,7 @@ from utils.contact_handler import record_to_sheet, send_email, get_email_body
 from utils.admin_tools import check_admin_access, show_admin_dashboard, get_toggle_states, render_admin_banner
 from utils.partner_admin import show_partner_admin
 from utils.advertisements import show_ad
-from utils.partner_config import get_partner_config, show_partner_toggle_panel
+from utils.partner_config import PartnerConfigHelper
 from utils.changelog_viewer import display_changelog
 
 # ✅ Page Setup
@@ -33,12 +31,21 @@ is_admin = check_admin_access()
 if is_admin:
     render_admin_banner()
     show_admin_dashboard()
+
     with st.sidebar:
+        # Toggle visibility of Partner Config Panel
+        if "show_partner_config_panel" not in st.session_state:
+            st.session_state["show_partner_config_panel"] = False
+
         if st.button("🧩 Partner Config Panel"):
+            st.session_state["show_partner_config_panel"] = not st.session_state["show_partner_config_panel"]
+
+        if st.session_state["show_partner_config_panel"]:
             show_partner_admin()
-        show_partner_toggle_panel()  # ✅ Only place this is called
-    with st.sidebar.expander("📄 View Changelog"):
-        display_changelog()
+            PartnerConfigHelper().render_panel()
+
+        with st.expander("📄 View Changelog"):
+            display_changelog()
 
 # ✅ Test Mode
 test_mode = st.sidebar.checkbox("🧪 Enable Test Mode (Safe Demo)")
@@ -48,9 +55,9 @@ if test_mode:
 
 # ✅ Load Feature Toggles
 toggle_states = get_toggle_states()
+partner_config = PartnerConfigHelper().get_config()
 
 # ✅ Sponsored Header Ad (if enabled)
-partner_config = get_partner_config()
 if toggle_states.get("enable_ads", False) and partner_config.get("enable_partner_ads", False):
     st.markdown("### 📢 Sponsored Message")
     show_ad(location="header_ad", sport=st.session_state.get("selected_sport", "Football"))
@@ -127,7 +134,8 @@ if toggle_states.get("step_7", True):
             record_to_sheet(name, email, school)
             success, email_body = send_email(name, email, quiz_score)
         else:
-            pd.DataFrame([[name, email, school, quiz_score]], columns=["Name", "Email", "School", "Score"])               .to_csv("test_mode_log.csv", mode="a", index=False, header=False)
+            pd.DataFrame([[name, email, school, quiz_score]], columns=["Name", "Email", "School", "Score"]) \
+              .to_csv("test_mode_log.csv", mode="a", index=False, header=False)
             success = True
             email_body = get_email_body(name, quiz_score)
 
@@ -138,5 +146,5 @@ if toggle_states.get("step_7", True):
             if st.button("📤 Resend Email"):
                 send_email(name, email, quiz_score)
 
-# Always show leaderboard
+# ✅ Leaderboard always visible
 display_leaderboard()
