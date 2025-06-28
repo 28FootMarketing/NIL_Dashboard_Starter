@@ -1,6 +1,20 @@
 # utils/admin_tools.py
 
 import streamlit as st
+from utils.logger import log_change
+
+# inside show_admin_dashboard()
+def show_admin_dashboard():
+    st.sidebar.subheader("🛠️ Admin Controls")
+    for key, label in TOGGLE_KEYS.items():
+        current_value = st.session_state.get(key, True)
+        new_value = st.sidebar.checkbox(label, value=current_value)
+        if new_value != current_value:
+            log_change(f"Toggled '{label}' from {current_value} to {new_value}", actor="Admin")
+        st.session_state[key] = new_value
+
+    if st.sidebar.checkbox("Enable Ads", key="enable_ads"):
+        log_change("Enabled ads display", actor="Admin")
 
 # Central toggle label mapping for sidebar checkboxes
 TOGGLE_KEYS = {
