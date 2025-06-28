@@ -18,6 +18,13 @@ from utils.partner_config import get_partner_config, show_partner_toggle_panel
 
 st.set_page_config(page_title="NextPlay NIL", layout="centered")
 
+# ✅ Page setup
+st.set_page_config(page_title="NextPlay NIL", layout="centered")
+
+# ✅ Initialize default session values
+if "selected_sport" not in st.session_state:
+    st.session_state["selected_sport"] = "Football"  # Default or dynamic if you have user profile
+
 # Admin Mode Toggle
 is_admin = check_admin_access()
 if is_admin:
