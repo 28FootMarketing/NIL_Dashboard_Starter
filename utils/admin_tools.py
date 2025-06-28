@@ -3,6 +3,7 @@
 import streamlit as st
 
 
+
 TOGGLE_KEYS = {
     "step_1": "Show Step 1: NIL Readiness Quiz",
     "step_2": "Show Step 2: NIL Business Tools",
@@ -41,3 +42,4 @@ def show_admin_dashboard():
         if key not in st.session_state:
             st.session_state[key] = True
         st.session_state[key] = st.sidebar.checkbox(label, value=st.session_state[key])
+    st.sidebar.checkbox("Enable Ads", key="enable_ads")
