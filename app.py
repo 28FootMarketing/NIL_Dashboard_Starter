@@ -39,7 +39,7 @@ if is_admin:
     with st.sidebar.expander("📄 View Changelog"):
         display_changelog()
 
-# ✅ Partner Mode
+# ✅ Partner Mode Dashboard (Admin only)
 if is_admin and st.session_state.get("partner_mode", True):
     st.header("🧩 Partner Mode Dashboard")
     show_partner_toggle_panel()
@@ -54,22 +54,22 @@ if test_mode:
 # ✅ Load Feature Toggles
 toggle_states = get_toggle_states()
 
-# ✅ Sponsored Header Ad (if enabled)
+# ✅ Sponsored Header Ad (Only if both global + partner toggles are on)
 partner_config = get_partner_config()
-if toggle_states.get("enable_ads", False) and partner_config.get("enable_partner_ads", False):
+if toggle_states.get("enable_ads", False) and st.session_state.get("partner_toggle_enable_partner_ads", False):
     st.markdown("### 📢 Sponsored Message")
     show_ad(location="header_ad", sport=st.session_state.get("selected_sport", "Football"))
 
-# ✅ App Title
+# ✅ App Branding
 st.title("🏈 NextPlay NIL")
 st.subheader("Own your brand. Win your next play.")
 st.subheader("Your NIL Strategy & Branding Assistant")
 
-# Step 0: Education
+# ✅ Step 0: NIL Education (Always Shown)
 with st.expander("🎓 NIL Education"):
     run_nil_course()
 
-# Step 1: NIL Readiness Quiz
+# ✅ Step 1: NIL Readiness Quiz
 if toggle_states.get("step_1", True):
     st.header("Step 1: NIL Readiness Quiz")
     quiz_score = 72 if test_mode else run_quiz()
@@ -79,23 +79,23 @@ if toggle_states.get("step_1", True):
         estimated_earnings = earnings_estimator(quiz_score)
         st.info(f"💰 Estimated NIL Earning Potential: ${estimated_earnings:,.2f}")
 
-# Step 2: NIL Business Tools
+# ✅ Step 2: NIL Business Tools
 if toggle_states.get("step_2", True):
     st.header("Step 2: NIL Business Tools")
     deal_type = st.selectbox("Pick your need:", ["Brand Outreach Email", "Contract Template", "Social Media Post", "Thank You Note"])
     custom_name = st.text_input("Enter Athlete or Brand Name:")
     if st.button("Generate My Template"):
         if custom_name:
-            st.code(generate_template(deal_type, custom_name), language='markdown')
+            st.code(generate_template(deal_type, custom_name), language="markdown")
         else:
             st.warning("Please enter a name or brand.")
 
-# Step 3: Deal Builder Wizard
+# ✅ Step 3: Deal Builder Wizard
 if toggle_states.get("step_3", True):
     st.header("🧾 Step 3: NIL Deal Builder Wizard")
     run_wizard()
 
-# Step 4: Pitch Deck Generator
+# ✅ Step 4: Pitch Deck Generator
 if toggle_states.get("step_4", True):
     st.header("📊 Step 4: NIL Pitch Deck Generator")
     with st.form("pitch_deck_form"):
@@ -106,19 +106,19 @@ if toggle_states.get("step_4", True):
         goals = st.text_area("What are your NIL goals?")
         pitch_submitted = st.form_submit_button("Generate Pitch Deck")
         if pitch_submitted:
-            st.code(build_pitch_deck(name, sport, followers, stats, goals), language='markdown')
+            st.code(build_pitch_deck(name, sport, followers, stats, goals), language="markdown")
 
-# Step 5: Weekly Content Plan
+# ✅ Step 5: Weekly Content Plan
 if toggle_states.get("step_5", True):
     st.header("📅 Step 5: Weekly Content Plan")
     display_calendar()
 
-# Step 6: NIL Success Stories
+# ✅ Step 6: NIL Success Stories
 if toggle_states.get("step_6", True):
     st.header("📚 Step 6: Real NIL Success Stories")
     show_case_studies()
 
-# Step 7: Contact Form
+# ✅ Step 7: Contact Form
 if toggle_states.get("step_7", True):
     st.header("📥 Step 7: Stay in the NIL Loop")
     with st.form("contact_form"):
@@ -144,5 +144,5 @@ if toggle_states.get("step_7", True):
             if st.button("📤 Resend Email"):
                 send_email(name, email, quiz_score)
 
-# Always show leaderboard
+# ✅ Always Show Leaderboard
 display_leaderboard()
