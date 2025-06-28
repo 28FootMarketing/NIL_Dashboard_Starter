@@ -28,7 +28,7 @@ st.set_page_config(page_title="NextPlay NIL", layout="centered")
 if "selected_sport" not in st.session_state:
     st.session_state["selected_sport"] = "Football"
 
-# ✅ Initialize partner defaults
+# ✅ Initialize Partner Config Defaults
 PartnerConfigHelper.initialize_defaults()
 
 # ✅ Admin Mode
@@ -38,15 +38,12 @@ if is_admin:
     show_admin_dashboard()
 
     with st.sidebar:
-        if st.button("🧩 Partner Config Panel"):
+        if st.button("🧩 Toggle Partner Config Panel"):
             st.session_state["show_partner_config_panel"] = not st.session_state["show_partner_config_panel"]
+        PartnerConfigHelper.render_toggle_panel()
 
-        if st.session_state.get("show_partner_config_panel", False):
-            show_partner_admin()
-            PartnerConfigHelper.render_toggle_panel()
-
-        with st.expander("📄 View Changelog"):
-            display_changelog()
+    with st.sidebar.expander("📄 View Changelog"):
+        display_changelog()
 
 # ✅ Test Mode
 test_mode = st.sidebar.checkbox("🧪 Enable Test Mode (Safe Demo)")
@@ -147,5 +144,5 @@ if toggle_states.get("step_7", True):
             if st.button("📤 Resend Email"):
                 send_email(name, email, quiz_score)
 
-# ✅ Leaderboard
+# ✅ Always show leaderboard
 display_leaderboard()
