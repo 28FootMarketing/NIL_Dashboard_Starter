@@ -12,18 +12,15 @@ from utils.course_quiz import run_nil_course
 from utils.contact_handler import record_to_sheet, send_email, get_email_body
 from utils.admin_tools import check_admin_access, show_admin_dashboard, get_toggle_states, render_admin_banner
 from utils.partner_admin import show_partner_admin
-# 🚧 Reserved for Future Ad Integration
-if st.session_state.get("enable_ads", False):
-    st.markdown("### 📢 Sponsored Message")
-    show_ad("header_ad")
+# from utils.advertisements import show_ad  # Optional future import
 
 st.set_page_config(page_title="NextPlay NIL", layout="centered")
 
 # Admin Mode Toggle
 is_admin = check_admin_access()
 if is_admin:
-    show_admin_dashboard()
     render_admin_banner()
+    show_admin_dashboard()
 
 # Partner Panel Button
 if is_admin:
@@ -40,16 +37,21 @@ if test_mode:
 # Pull toggle values
 toggle_states = get_toggle_states()
 
+# 🚧 Reserved for Future Ad Integration
+if toggle_states.get("enable_ads", False):
+    st.markdown("### 📢 Sponsored Message")
+    # show_ad("header_ad")  # Placeholder for ad rendering
+
 st.title("🏈 NextPlay NIL")
 st.subheader("Own your brand. Win your next play.")
 st.subheader("Your NIL Strategy & Branding Assistant")
 
-# Step 0: NIL Education
+# Step 0: NIL Education (Always Shown)
 with st.expander("🎓 NIL Education"):
     run_nil_course()
 
 # Step 1: NIL Readiness Quiz
-if toggle_states["show_pitch_deck"]:
+if toggle_states.get("step_1", True):
     st.header("Step 1: NIL Readiness Quiz")
     quiz_score = 72 if test_mode else run_quiz()
     if quiz_score:
@@ -59,7 +61,7 @@ if toggle_states["show_pitch_deck"]:
         st.info(f"💰 Estimated NIL Earning Potential: ${estimated_earnings:,.2f}")
 
 # Step 2: NIL Business Tools
-if st.session_state.get("step_2", True):
+if toggle_states.get("step_2", True):
     st.header("Step 2: NIL Business Tools")
     deal_type = st.selectbox("Pick your need:", ["Brand Outreach Email", "Contract Template", "Social Media Post", "Thank You Note"])
     custom_name = st.text_input("Enter Athlete or Brand Name:")
@@ -70,12 +72,12 @@ if st.session_state.get("step_2", True):
             st.warning("Please enter a name or brand.")
 
 # Step 3: NIL Deal Builder Wizard
-if st.session_state.get("step_3", True):
+if toggle_states.get("step_3", True):
     st.header("🧾 Step 3: NIL Deal Builder Wizard")
     run_wizard()
 
 # Step 4: NIL Pitch Deck Generator
-if toggle_states["show_pitch_deck"]:
+if toggle_states.get("step_4", True):
     st.header("📊 Step 4: NIL Pitch Deck Generator")
     with st.form("pitch_deck_form"):
         name = st.text_input("Your Name")
@@ -88,17 +90,17 @@ if toggle_states["show_pitch_deck"]:
             st.code(build_pitch_deck(name, sport, followers, stats, goals), language='markdown')
 
 # Step 5: Weekly Content Plan
-if st.session_state.get("step_5", True):
+if toggle_states.get("step_5", True):
     st.header("📅 Step 5: Weekly Content Plan")
     display_calendar()
 
 # Step 6: NIL Success Stories
-if st.session_state.get("step_6", True):
+if toggle_states.get("step_6", True):
     st.header("📚 Step 6: Real NIL Success Stories")
     show_case_studies()
 
-# Step 7: Contact Capture
-if st.session_state.get("step_7", True):
+# Step 7: Contact Form
+if toggle_states.get("step_7", True):
     st.header("📥 Step 7: Stay in the NIL Loop")
     with st.form("contact_form"):
         name = st.text_input("Your Full Name")
@@ -111,7 +113,8 @@ if st.session_state.get("step_7", True):
             record_to_sheet(name, email, school)
             success, email_body = send_email(name, email, quiz_score)
         else:
-            pd.DataFrame([[name, email, school, quiz_score]], columns=['Name', 'Email', 'School', 'Score'])                 .to_csv('test_mode_log.csv', mode='a', index=False, header=False)
+            pd.DataFrame([[name, email, school, quiz_score]], columns=["Name", "Email", "School", "Score"]) \
+              .to_csv("test_mode_log.csv", mode="a", index=False, header=False)
             success = True
             email_body = get_email_body(name, quiz_score)
 
@@ -122,5 +125,5 @@ if st.session_state.get("step_7", True):
             if st.button("📤 Resend Email"):
                 send_email(name, email, quiz_score)
 
-# Leaderboard always shown
+# Always show leaderboard
 display_leaderboard()
