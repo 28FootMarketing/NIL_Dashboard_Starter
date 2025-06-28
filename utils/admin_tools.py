@@ -13,6 +13,21 @@ TOGGLE_KEYS = {
     "step_7": "Show Step 7: Contact Form & Updates",
 }
 
+def get_toggle_states():
+    """Returns the current toggle states for each step."""
+    return {
+        "step_1": st.session_state.get("step_1", True),
+        "step_2": st.session_state.get("step_2", True),
+        "step_3": st.session_state.get("step_3", True),
+        "step_4": st.session_state.get("step_4", True),
+        "step_5": st.session_state.get("step_5", True),
+        "step_6": st.session_state.get("step_6", True),
+        "step_7": st.session_state.get("step_7", True),
+    }
+
+def render_admin_banner():
+    st.markdown("🚨 **Admin Mode Active** — Use toggles to control app visibility.", unsafe_allow_html=True)
+
 def check_admin_access():
     return st.sidebar.checkbox("👑 Admin Mode", key="admin_mode_checkbox")
 
