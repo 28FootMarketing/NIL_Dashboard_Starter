@@ -37,7 +37,9 @@ is_admin = check_admin_access()
 if is_admin:
     render_admin_banner()
     show_admin_dashboard()
-
+# ✅ Partner Mode Toggle
+if st.session_state.get("partner_mode", False):
+    PartnerDashboard().render()
     with st.sidebar:
         if st.button("🧩 Toggle Partner Config Panel"):
             st.session_state["show_partner_config_panel"] = not st.session_state["show_partner_config_panel"]
