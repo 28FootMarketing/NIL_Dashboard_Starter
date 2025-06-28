@@ -89,3 +89,5 @@ if submitted:
             send_email(name, email, quiz_score)
 
 display_leaderboard()
+if is_admin:
+    show_admin_dashboard()
