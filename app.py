@@ -20,6 +20,7 @@ from utils.partner_admin import show_partner_admin
 from utils.advertisements import show_ad
 from utils.partner_config import PartnerConfigHelper
 from utils.changelog_viewer import display_changelog
+from utils.partner_dashboard import PartnerDashboard
 
 # ✅ Page Setup
 st.set_page_config(page_title="NextPlay NIL", layout="centered")
