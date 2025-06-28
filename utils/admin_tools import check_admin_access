@@ -1,0 +1,10 @@
+is_admin = check_admin_access()
+
+if is_admin:
+    # Admin-only content
+    st.header("💼 Partner-Focused Features (Admin Preview)")
+    st.markdown("- Brand Submission Portal\n- Save + Reuse Templates\n- Coach/Team Dashboard")
+else:
+    # Public preview
+    st.header("💼 Partner-Focused Features (Coming Soon)")
+    st.info("Launching Q4 2025 to connect brands and coaches with athletes.")
