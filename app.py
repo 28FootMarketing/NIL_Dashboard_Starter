@@ -10,6 +10,7 @@ from utils.nil_wizard import run_wizard
 from utils.case_studies import show_case_studies
 from utils.course_quiz import run_nil_course
 from utils.contact_handler import record_to_sheet, send_email, get_email_body
+from utils.admin_tools import check_admin_access, show_admin_dashboard
 
 st.set_page_config(page_title="NextPlay NIL", layout="centered")
 test_mode = st.sidebar.checkbox("🧪 Enable Test Mode (Safe Demo)")
