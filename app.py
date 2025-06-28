@@ -12,6 +12,10 @@ from utils.course_quiz import run_nil_course
 from utils.contact_handler import record_to_sheet, send_email, get_email_body
 from utils.admin_tools import check_admin_access, show_admin_dashboard, get_toggle_states, render_admin_banner
 from utils.partner_admin import show_partner_admin
+# 🚧 Reserved for Future Ad Integration
+if st.session_state.get("enable_ads", False):
+    st.markdown("### 📢 Sponsored Message")
+    show_ad("header_ad")
 
 st.set_page_config(page_title="NextPlay NIL", layout="centered")
 
