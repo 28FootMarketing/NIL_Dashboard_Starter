@@ -39,6 +39,12 @@ if is_admin:
     render_admin_banner()
     show_admin_dashboard()
 
+# app.py – Add after checking for admin access
+if is_admin and st.session_state.get("partner_mode", True):
+    st.header("🧩 Partner Mode Dashboard")
+    show_partner_toggle_panel()
+    display_partner_leads()
+
 # Partner Panel Button
 if is_admin:
      with st.sidebar:
