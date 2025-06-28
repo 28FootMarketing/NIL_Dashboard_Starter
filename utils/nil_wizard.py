@@ -11,7 +11,7 @@ def run_wizard():
 
     platforms = st.multiselect(
         "Which platforms will this NIL opportunity use?",
-        ["Instagram", "TikTok", "YouTube", "Twitter", "Snapchat", "Podcast", "Blog", "In-person Event", "Other"]
+        ["Instagram", "TikTok", "YouTube", "X", "Snapchat", "LinkedIn" "Podcast", "Blog", "In-person Event", "Other"]
     )
 
     offer_type = st.selectbox("Type of NIL Opportunity", [
