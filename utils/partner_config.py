@@ -3,20 +3,16 @@
 import streamlit as st
 
 PARTNER_TOGGLES = {
-    "show_partner_logo": True,
     "enable_partner_ads": True,
-    "display_affiliate_links": False,
+    # Add more partner-specific settings here
 }
 
 def get_partner_config():
-    """Returns current partner config states."""
-    return {
-        "show_partner_logo": st.session_state.get("show_partner_logo", True),
-        "enable_partner_ads": st.session_state.get("enable_partner_ads", True),
-        "display_affiliate_links": st.session_state.get("display_affiliate_links", False),
-    }
+    return {k: st.session_state.get(k, v) for k, v in PARTNER_TOGGLES.items()}
 
 def show_partner_toggle_panel():
-    st.sidebar.subheader("🤝 Partner Display Settings")
-    for key, default in PARTNER_TOGGLES.items():
-        st.session_state[key] = st.sidebar.checkbox(key.replace("_", " ").title(), value=st.session_state.get(key, default))
+    st.sidebar.subheader("🔧 Partner Settings")
+    for key in PARTNER_TOGGLES:
+        if key not in st.session_state:
+            st.session_state[key] = PARTNER_TOGGLES[key]
+        st.sidebar.checkbox(key.replace("_", " ").title(), key=key, value=st.session_state[key])
