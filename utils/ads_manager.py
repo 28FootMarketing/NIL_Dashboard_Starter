@@ -1,6 +1,8 @@
 # utils/ads_manager.py
 
 import streamlit as st
+# Future feature
+from utils.ads_manager import show_ad
 
 ADS = {
     "header_ad": {
