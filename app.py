@@ -42,7 +42,7 @@ if is_admin:
 
         if st.session_state["show_partner_config_panel"]:
             show_partner_admin()
-            PartnerConfigHelper().render_panel()
+            PartnerConfigHelper.render_toggle_panel()
 
         with st.expander("📄 View Changelog"):
             display_changelog()
