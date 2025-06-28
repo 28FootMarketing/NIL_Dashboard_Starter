@@ -1,4 +1,6 @@
 
+# app.py
+
 import streamlit as st
 import pandas as pd
 
@@ -26,6 +28,9 @@ st.set_page_config(page_title="NextPlay NIL", layout="centered")
 if "selected_sport" not in st.session_state:
     st.session_state["selected_sport"] = "Football"
 
+# ✅ Initialize partner defaults
+PartnerConfigHelper.initialize_defaults()
+
 # ✅ Admin Mode
 is_admin = check_admin_access()
 if is_admin:
@@ -33,14 +38,10 @@ if is_admin:
     show_admin_dashboard()
 
     with st.sidebar:
-        # Toggle visibility of Partner Config Panel
-        if "show_partner_config_panel" not in st.session_state:
-            st.session_state["show_partner_config_panel"] = False
-
         if st.button("🧩 Partner Config Panel"):
             st.session_state["show_partner_config_panel"] = not st.session_state["show_partner_config_panel"]
 
-        if st.session_state["show_partner_config_panel"]:
+        if st.session_state.get("show_partner_config_panel", False):
             show_partner_admin()
             PartnerConfigHelper.render_toggle_panel()
 
@@ -55,27 +56,15 @@ if test_mode:
 
 # ✅ Load Feature Toggles
 toggle_states = get_toggle_states()
-partner_config = PartnerConfigHelper().get_config()
 
 # ✅ Sponsored Header Ad (if enabled)
+partner_config = PartnerConfigHelper.get_config()
 if toggle_states.get("enable_ads", False) and partner_config.get("enable_partner_ads", False):
     st.markdown("### 📢 Sponsored Message")
     show_ad(location="header_ad", sport=st.session_state.get("selected_sport", "Football"))
 
-# ✅ Custom Partner CTA (if enabled)
-if st.session_state.get("partner_toggle_custom_cta", False):
-    st.markdown(f"""
-    <div style="border: 2px solid #2a9d8f; padding: 1em; border-radius: 10px; margin-top: 1em;">
-        <h4>🔥 Custom Opportunity from {partner_config.get('school_name', 'Our Partner')}</h4>
-        <p>This is a placeholder CTA. Replace with your custom link or offer.</p>
-        <a href="https://yourcustomcta.link" target="_blank">
-            <button style="padding: 0.5em 1em; background-color: #2a9d8f; color: white; border: none; border-radius: 5px;">Take Action</button>
-        </a>
-    </div>
-    """, unsafe_allow_html=True)
-
 # ✅ App Title
-st.title("🏀⚽️🎾⚾️🏈🥎🏐🤼‍♂️ NextPlay NIL")
+st.title("🏈 NextPlay NIL")
 st.subheader("Own your brand. Win your next play.")
 st.subheader("Your NIL Strategy & Branding Assistant")
 
@@ -158,5 +147,5 @@ if toggle_states.get("step_7", True):
             if st.button("📤 Resend Email"):
                 send_email(name, email, quiz_score)
 
-# ✅ Leaderboard always visible
+# ✅ Leaderboard
 display_leaderboard()
