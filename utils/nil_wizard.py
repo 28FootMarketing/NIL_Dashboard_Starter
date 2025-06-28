@@ -2,7 +2,6 @@
 import streamlit as st
 from fpdf import FPDF
 import datetime
-import smtplib
 
 def run_wizard():
     st.write("🛠️ Build Your NIL Deal Offer")
@@ -11,7 +10,7 @@ def run_wizard():
 
     platforms = st.multiselect(
         "Which platforms will this NIL opportunity use?",
-        ["Instagram", "TikTok", "YouTube", "X", "Snapchat", "LinkedIn" "Podcast", "Blog", "In-person Event", "Other"]
+        ["Instagram", "TikTok", "YouTube", "X", "Snapchat", "LinkedIn", "Facebook", "Podcast", "Blog", "In-person Event", "Other"]
     )
 
     offer_type = st.selectbox("Type of NIL Opportunity", [
@@ -39,6 +38,9 @@ def run_wizard():
         pdf.cell(200, 10, txt="NIL Agreement Summary", ln=True, align='C')
         pdf.ln(10)
         pdf.multi_cell(0, 10, txt=f"Athlete: {athlete}\nBrand: {brand}\nDeal Type: {offer_type}\nPlatforms: {', '.join(platforms)}\nPayment: ${payment}\nDeadline: {deadline}\nNotes: {notes}")
+        pdf.ln(10)
+        pdf.set_font("Arial", "I", 9)
+        pdf.multi_cell(0, 8, txt="Disclaimer: This document is a self-generated NIL proposal. It is not a legally binding contract. All agreements must be reviewed and approved by your school, guardian, or legal advisor before execution.")
         filename = f"contract_{athlete.replace(' ', '_')}_{datetime.date.today()}.pdf"
         filepath = f"/mnt/data/{filename}"
         pdf.output(filepath)
