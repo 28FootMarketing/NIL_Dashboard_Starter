@@ -1,5 +1,9 @@
+# app.py
+
 import streamlit as st
 import pandas as pd
+
+# Utility Imports
 from utils.quiz_logic import run_quiz
 from utils.content_templates import generate_template
 from utils.nil_score import calculate_score
@@ -15,68 +19,53 @@ from utils.partner_admin import show_partner_admin
 from utils.advertisements import show_ad
 from utils.partner_config import get_partner_config, show_partner_toggle_panel
 from utils.changelog_viewer import display_changelog
-from utils.admin_tools import check_admin_access
 
-if check_admin_access():
-    with st.sidebar.expander("📄 View Changelog"):
-        display_changelog()
-
-
-# from utils.advertisements import show_ad  # Optional future import
-
+# ✅ Page Setup
 st.set_page_config(page_title="NextPlay NIL", layout="centered")
 
-# ✅ Page setup
-st.set_page_config(page_title="NextPlay NIL", layout="centered")
-
-# ✅ Initialize default session values
+# ✅ Session State Initialization
 if "selected_sport" not in st.session_state:
-    st.session_state["selected_sport"] = "Football"  # Default or dynamic if you have user profile
+    st.session_state["selected_sport"] = "Football"
 
-# Admin Mode Toggle
+# ✅ Admin Mode
 is_admin = check_admin_access()
 if is_admin:
     render_admin_banner()
     show_admin_dashboard()
-
-# app.py – Add after checking for admin access
-if is_admin and st.session_state.get("partner_mode", True):
-    st.header("🧩 Partner Mode Dashboard")
-    show_partner_toggle_panel()
-    display_partner_leads()
-
-# Partner Panel Button
-if is_admin:
-     with st.sidebar:
+    with st.sidebar:
         if st.button("🧩 Partner Config Panel"):
             show_partner_admin()
             show_partner_toggle_panel()
+    with st.sidebar.expander("📄 View Changelog"):
+        display_changelog()
 
-# Test Mode Toggle
+# ✅ Partner Mode
+if is_admin and st.session_state.get("partner_mode", True):
+    st.header("🧩 Partner Mode Dashboard")
+    show_partner_toggle_panel()
+    # display_partner_leads()  # Uncomment when implemented
+
+# ✅ Test Mode
 test_mode = st.sidebar.checkbox("🧪 Enable Test Mode (Safe Demo)")
 if test_mode:
     st.sidebar.warning("Test Mode is ON — No data will be saved or emailed.")
-    st.markdown("### ⚠️ TEST MODE: This is a safe demo version. No data will be sent or stored online.", unsafe_allow_html=True)
+    st.markdown("### ⚠️ TEST MODE: No data will be sent or stored.", unsafe_allow_html=True)
 
-# Pull toggle values
+# ✅ Load Feature Toggles
 toggle_states = get_toggle_states()
 
-# 🚧 Reserved for Future Ad Integration
-if toggle_states.get("enable_ads", False):
-    st.markdown("### 📢 Sponsored Message")
-    # show_ad("header_ad")  # Placeholder for ad rendering
-
-st.title("🏈 NextPlay NIL")
-st.subheader("Own your brand. Win your next play.")
-st.subheader("Your NIL Strategy & Branding Assistant")
-
-# 🎯 Conditional Ad Display
+# ✅ Sponsored Header Ad (if enabled)
 partner_config = get_partner_config()
 if toggle_states.get("enable_ads", False) and partner_config.get("enable_partner_ads", False):
     st.markdown("### 📢 Sponsored Message")
     show_ad(location="header_ad", sport=st.session_state.get("selected_sport", "Football"))
 
-# Step 0: NIL Education (Always Shown)
+# ✅ App Title
+st.title("🏈 NextPlay NIL")
+st.subheader("Own your brand. Win your next play.")
+st.subheader("Your NIL Strategy & Branding Assistant")
+
+# Step 0: Education
 with st.expander("🎓 NIL Education"):
     run_nil_course()
 
@@ -101,12 +90,12 @@ if toggle_states.get("step_2", True):
         else:
             st.warning("Please enter a name or brand.")
 
-# Step 3: NIL Deal Builder Wizard
+# Step 3: Deal Builder Wizard
 if toggle_states.get("step_3", True):
     st.header("🧾 Step 3: NIL Deal Builder Wizard")
     run_wizard()
 
-# Step 4: NIL Pitch Deck Generator
+# Step 4: Pitch Deck Generator
 if toggle_states.get("step_4", True):
     st.header("📊 Step 4: NIL Pitch Deck Generator")
     with st.form("pitch_deck_form"):
@@ -154,8 +143,6 @@ if toggle_states.get("step_7", True):
             st.code(email_body)
             if st.button("📤 Resend Email"):
                 send_email(name, email, quiz_score)
-with st.sidebar.expander("📄 View Changelog"):
-    display_changelog()
 
 # Always show leaderboard
 display_leaderboard()
