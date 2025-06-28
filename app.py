@@ -12,6 +12,8 @@ from utils.course_quiz import run_nil_course
 from utils.contact_handler import record_to_sheet, send_email, get_email_body
 from utils.admin_tools import check_admin_access, show_admin_dashboard, get_toggle_states, render_admin_banner
 from utils.partner_admin import show_partner_admin
+from utils.advertisements import show_ad
+from utils.partner_config import get_partner_config, show_partner_toggle_panel
 # from utils.advertisements import show_ad  # Optional future import
 
 st.set_page_config(page_title="NextPlay NIL", layout="centered")
@@ -24,9 +26,10 @@ if is_admin:
 
 # Partner Panel Button
 if is_admin:
-    with st.sidebar:
+     with st.sidebar:
         if st.button("🧩 Partner Config Panel"):
             show_partner_admin()
+            show_partner_toggle_panel()
 
 # Test Mode Toggle
 test_mode = st.sidebar.checkbox("🧪 Enable Test Mode (Safe Demo)")
@@ -45,6 +48,12 @@ if toggle_states.get("enable_ads", False):
 st.title("🏈 NextPlay NIL")
 st.subheader("Own your brand. Win your next play.")
 st.subheader("Your NIL Strategy & Branding Assistant")
+
+# 🎯 Conditional Ad Display
+partner_config = get_partner_config()
+if toggle_states.get("enable_ads", False) and partner_config.get("enable_partner_ads", False):
+    st.markdown("### 📢 Sponsored Message")
+    show_ad(location="header_ad", sport=st.session_state.get("selected_sport", "Football"))
 
 # Step 0: NIL Education (Always Shown)
 with st.expander("🎓 NIL Education"):
