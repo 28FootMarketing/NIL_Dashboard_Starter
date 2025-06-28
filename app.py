@@ -10,25 +10,31 @@ from utils.nil_wizard import run_wizard
 from utils.case_studies import show_case_studies
 from utils.course_quiz import run_nil_course
 from utils.contact_handler import record_to_sheet, send_email, get_email_body
-from utils.admin_tools import check_admin_access, show_admin_dashboard
+from utils.admin_tools import check_admin_access, show_admin_dashboard, get_toggle_states, render_admin_banner
 from utils.partner_admin import show_partner_admin
 
-if check_admin_access():
-    with st.sidebar:
-        if st.button("🧩 Partner Config Panel"):
-            show_partner_admin()
 st.set_page_config(page_title="NextPlay NIL", layout="centered")
 
 # Admin Mode Toggle
 is_admin = check_admin_access()
 if is_admin:
     show_admin_dashboard()
+    render_admin_banner()
+
+# Partner Panel Button
+if is_admin:
+    with st.sidebar:
+        if st.button("🧩 Partner Config Panel"):
+            show_partner_admin()
 
 # Test Mode Toggle
 test_mode = st.sidebar.checkbox("🧪 Enable Test Mode (Safe Demo)")
 if test_mode:
     st.sidebar.warning("Test Mode is ON — No data will be saved or emailed.")
     st.markdown("### ⚠️ TEST MODE: This is a safe demo version. No data will be sent or stored online.", unsafe_allow_html=True)
+
+# Pull toggle values
+toggle_states = get_toggle_states()
 
 st.title("🏈 NextPlay NIL")
 st.subheader("Own your brand. Win your next play.")
@@ -39,7 +45,7 @@ with st.expander("🎓 NIL Education"):
     run_nil_course()
 
 # Step 1: NIL Readiness Quiz
-if st.session_state.get("step_1", True):
+if toggle_states["show_pitch_deck"]:
     st.header("Step 1: NIL Readiness Quiz")
     quiz_score = 72 if test_mode else run_quiz()
     if quiz_score:
@@ -65,7 +71,7 @@ if st.session_state.get("step_3", True):
     run_wizard()
 
 # Step 4: NIL Pitch Deck Generator
-if st.session_state.get("step_4", True):
+if toggle_states["show_pitch_deck"]:
     st.header("📊 Step 4: NIL Pitch Deck Generator")
     with st.form("pitch_deck_form"):
         name = st.text_input("Your Name")
@@ -101,8 +107,7 @@ if st.session_state.get("step_7", True):
             record_to_sheet(name, email, school)
             success, email_body = send_email(name, email, quiz_score)
         else:
-            pd.DataFrame([[name, email, school, quiz_score]], columns=['Name', 'Email', 'School', 'Score']) \
-                .to_csv('test_mode_log.csv', mode='a', index=False, header=False)
+            pd.DataFrame([[name, email, school, quiz_score]], columns=['Name', 'Email', 'School', 'Score'])                 .to_csv('test_mode_log.csv', mode='a', index=False, header=False)
             success = True
             email_body = get_email_body(name, quiz_score)
 
