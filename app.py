@@ -20,6 +20,7 @@ if test_mode:
 
 st.set_page_config(page_title="NextPlay NIL", layout="centered")
 st.title("🏈 NextPlay NIL")
+st.subheader("Own your brand. Win your next play.")
 st.subheader("Your NIL Strategy & Branding Assistant")
 
 with st.expander("🎓 NIL Education"):
