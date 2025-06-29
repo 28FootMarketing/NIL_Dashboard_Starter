@@ -32,13 +32,10 @@ if "selected_sport" not in st.session_state:
 PartnerConfigHelper.initialize_defaults()
 
 # ✅ Admin Mode
+# ✅ Admin + Partner Tier Access Check
 partner_config = PartnerConfigHelper.get_config()
 is_admin = check_admin_access()
 has_admin_access = is_admin and partner_config.get("partner_tier") == "Gold"
-
-if is_admin:
-    render_admin_banner()
-    show_admin_dashboard()
 
 if has_admin_access:
     render_admin_banner()
@@ -46,27 +43,26 @@ if has_admin_access:
 
     with st.sidebar:
         st.markdown("## 🧩 White-Label Settings")
-        ...
-    def render_admin_sidebar():
-        with st.sidebar:
-            st.markdown("## 🧩 White-Label Settings")
-            
-# Partner Mode + Config Panel logic...
 
-    if is_admin:
-    with st.sidebar:
-        st.markdown("## 🧩 White-Label Settings")
-
+        # Toggle Partner Mode
         partner_mode = st.session_state.get("partner_mode", False)
         if st.button("✅ Enable Partner Mode" if not partner_mode else "❌ Disable Partner Mode"):
             st.session_state["partner_mode"] = not partner_mode
             st.experimental_rerun()
 
+        # Show Partner Config Panel if enabled
         if st.session_state.get("partner_mode", False):
             config_panel_open = st.session_state.get("show_partner_config_panel", False)
             if st.button("⚙️ " + ("Close" if config_panel_open else "Open") + " Config Panel"):
                 st.session_state["show_partner_config_panel"] = not config_panel_open
                 st.experimental_rerun()
+
+            with st.expander("🧱 Config Panel"):
+                show_partner_admin()
+
+        st.markdown("### 📄 Changelog")
+        display_changelog()
+
 
             with st.expander("🧱 Config Panel"):
                 show_partner_admin()
