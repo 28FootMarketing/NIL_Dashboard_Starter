@@ -5,7 +5,7 @@ import pandas as pd
 from utils.quiz_logic import run_quiz
 from utils.content_templates import generate_template
 from utils.nil_score import calculate_score
-from utils.leaderboard import display_leaderboard, earnings_estimator
+from utils.leaderboard import display_leaderboard
 from utils.pitch_deck_generator import build_pitch_deck
 from utils.calendar_generator import display_calendar
 from utils.nil_wizard import run_wizard
@@ -17,9 +17,6 @@ from utils.partner_admin import show_partner_admin
 from utils.advertisements import show_ad
 from utils.partner_config import get_partner_config, show_partner_toggle_panel
 from utils.changelog_viewer import display_changelog
-from utils.partner_banner_editor import show_partner_banner_editor
-from utils.logger import log_change
-from utils.partner_branding import show_brand_preview_panel
 from utils.partner_resources import show_partner_resources
 from utils.report_generator import generate_nil_report
 
@@ -35,30 +32,17 @@ is_admin = check_admin_access()
 if is_admin:
     render_admin_banner()
     show_admin_dashboard()
-
     with st.sidebar:
         if st.button("🧩 Partner Config Panel"):
             show_partner_admin()
             show_partner_toggle_panel()
-
-        if st.button("📝 Edit Partner Message"):
-            st.session_state["show_banner_editor"] = True
-
     with st.sidebar.expander("📄 View Changelog"):
         display_changelog()
-
-    if st.session_state.get("show_banner_editor", False):
-        st.subheader("📝 Partner Message Editor")
-        show_partner_banner_editor()
-if is_admin and st.session_state.get("partner_mode", True):
-    st.markdown("## 🧩 Partner Branding Settings")
-    show_brand_preview_panel(partner_config)
 
 # ✅ Partner Mode Dashboard (Admin only)
 if is_admin and st.session_state.get("partner_mode", True):
     st.header("🧩 Partner Mode Dashboard")
     show_partner_toggle_panel()
-    # display_partner_leads()  # Uncomment when implemented
 
 # ✅ Test Mode
 test_mode = st.sidebar.checkbox("🧪 Enable Test Mode (Safe Demo)")
@@ -71,30 +55,15 @@ toggle_states = get_toggle_states()
 
 # ✅ Sponsored Header Ad (Only if both global + partner toggles are on)
 partner_config = get_partner_config()
-if (
-    toggle_states.get("enable_ads", False)
-    and st.session_state.get("partner_toggle_enable_partner_ads", False)
-    and partner_config.get("show_partner_banner", True)
-):
+if toggle_states.get("enable_ads", False) and st.session_state.get("partner_toggle_enable_partner_ads", False):
     st.markdown("### 📢 Sponsored Message")
-    st.info(partner_config.get("partner_banner_message", "Partner promotion message coming soon."))
+    show_ad(location="header_ad", sport=st.session_state.get("selected_sport", "Football"))
 
 # ✅ App Branding
 st.title("🏈 NextPlay NIL")
 st.subheader("Own your brand. Win your next play.")
 st.subheader("Your NIL Strategy & Branding Assistant")
 
-# ✅ RESOURCES
-if partner_config.get("partner_toggle_show_resources", False):
-    st.header("📚 Partner Resource Library")
-    show_partner_resources(partner_config.get("partner_id", "default"))
-    
-# ✅ Reports
-if st.button("📄 Generate NIL Brand Report"):
-    file_path = generate_nil_report(name, quiz_score, goals, stats, partner_config)
-    st.success("Report ready!")
-    st.markdown(f"[📥 Download Report]({file_path})")
-    
 # ✅ Step 0: NIL Education (Always Shown)
 with st.expander("🎓 NIL Education"):
     run_nil_course()
@@ -108,6 +77,16 @@ if toggle_states.get("step_1", True):
         st.markdown(calculate_score(quiz_score))
         estimated_earnings = earnings_estimator(quiz_score)
         st.info(f"💰 Estimated NIL Earning Potential: ${estimated_earnings:,.2f}")
+
+        # ✅ Brand Evaluation Report Download
+        if toggle_states.get("enable_nil_report", True):
+            if st.button("📄 Download NIL Brand Evaluation Report"):
+                pdf_path = generate_nil_report(athlete_name=st.session_state.get("name", "Student-Athlete"), 
+                                               score=quiz_score, 
+                                               sport=st.session_state.get("selected_sport", "Football"))
+                if pdf_path:
+                    st.success("✅ Report generated successfully.")
+                    st.markdown(f"[📥 Download Your Report]({pdf_path})")
 
 # ✅ Step 2: NIL Business Tools
 if toggle_states.get("step_2", True):
@@ -143,6 +122,11 @@ if toggle_states.get("step_5", True):
     st.header("📅 Step 5: Weekly Content Plan")
     display_calendar()
 
+# ✅ Step 5.5: Partner Resource Hub
+if toggle_states.get("show_partner_resources", True):
+    st.header("📁 Step 5.5: Partner Resource Hub")
+    show_partner_resources()
+
 # ✅ Step 6: NIL Success Stories
 if toggle_states.get("step_6", True):
     st.header("📚 Step 6: Real NIL Success Stories")
@@ -174,10 +158,5 @@ if toggle_states.get("step_7", True):
             if st.button("📤 Resend Email"):
                 send_email(name, email, quiz_score)
 
-display_leaderboard(school=school_filter, sport=sport_filter, partner=partner_filter)
-
-# ✅ Always Show Leaderboard
+# ✅ Always Show Leaderboard (Now filter-enhanced)
 display_leaderboard()
-school_filter = st.sidebar.selectbox("Filter by School", ["All"] + school_list)
-sport_filter = st.sidebar.selectbox("Filter by Sport", ["All"] + sport_list)
-partner_filter = st.sidebar.selectbox("Filter by Partner", ["All"] + partner_list)
