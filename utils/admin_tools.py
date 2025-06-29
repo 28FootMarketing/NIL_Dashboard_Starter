@@ -16,12 +16,10 @@ TOGGLE_KEYS = {
     "enable_ads": "Enable Ads"
 }
 
-# ✅ Now only reads the checkbox state instead of redrawing it
 def check_admin_access():
     return st.session_state.get("admin_mode_checkbox", False)
 
 def show_admin_dashboard():
-    """Show toggles to manage visibility of app sections."""
     st.sidebar.subheader("🛠️ Admin Controls")
     for key, label in TOGGLE_KEYS.items():
         prev = st.session_state.get(key, True)
@@ -31,7 +29,6 @@ def show_admin_dashboard():
         st.session_state[key] = new_val
 
 def get_toggle_states():
-    """Central access to current toggle states."""
     return {key: st.session_state.get(key, True) for key in TOGGLE_KEYS.keys()}
 
 def render_admin_banner():
