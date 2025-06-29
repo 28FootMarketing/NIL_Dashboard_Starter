@@ -129,8 +129,7 @@ if toggle_states.get("admin_toggle_step_7", True) and partner_config.get("partne
             record_to_sheet(name, email, school)
             success, email_body = send_email(name, email, quiz_score)
         else:
-            pd.DataFrame([[name, email, school, quiz_score]], columns=["Name", "Email", "School", "Score"]) \
-              .to_csv("test_mode_log.csv", mode="a", index=False, header=False)
+            pd.DataFrame([[name, email, school, quiz_score]], columns=["Name", "Email", "School", "Score"])               .to_csv("test_mode_log.csv", mode="a", index=False, header=False)
             success = True
             email_body = get_email_body(name, quiz_score)
 
