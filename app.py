@@ -30,9 +30,12 @@ if "selected_sport" not in st.session_state:
 PartnerConfigHelper.initialize_defaults()
 
 # ✅ Admin Mode
-partner_config = PartnerConfigHelper.get_config()
-is_admin = check_admin_access()
-has_admin_access = is_admin and partner_config.get("partner_tier") == "Gold"
+with st.sidebar:
+    if "admin_mode_checkbox" not in st.session_state:
+        st.session_state["admin_mode_checkbox"] = st.checkbox("👑 Admin Mode", key="admin_mode_checkbox")
+
+    is_admin = st.session_state["admin_mode_checkbox"]
+    has_admin_access = is_admin and partner_config.get("partner_tier") == "Gold"
 
 if has_admin_access:
     render_admin_banner()
