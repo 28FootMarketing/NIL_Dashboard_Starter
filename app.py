@@ -53,7 +53,6 @@ if has_admin_access:
             
 # Partner Mode + Config Panel logic...
 
-           if is_admin:
     with st.sidebar:
         st.markdown("## 🧩 White-Label Settings")
 
