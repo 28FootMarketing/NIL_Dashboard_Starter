@@ -25,19 +25,27 @@ st.set_page_config(page_title="NextPlay NIL", layout="centered")
 if "selected_sport" not in st.session_state:
     st.session_state["selected_sport"] = "Football"
 
-# ✅ Admin Mode
+# ✅ Admin Check
 is_admin = check_admin_access()
+
+# ✅ Load Toggle States and Partner Config
+toggle_states = get_toggle_states()
+partner_config = get_partner_config()
+
+# ✅ Sidebar: Admin Panel
 if is_admin:
     render_admin_banner()
     show_admin_dashboard()
+
     with st.sidebar:
         if st.button("🧩 Partner Config Panel"):
             show_partner_admin()
             show_partner_toggle_panel()
-    with st.sidebar.expander("📄 View Changelog"):
-        display_changelog()
 
-# ✅ Partner Mode Dashboard (Admin only)
+        with st.expander("📄 View Changelog"):
+            display_changelog()
+
+# ✅ Partner Mode Dashboard
 if is_admin and st.session_state.get("partner_mode", True):
     st.header("🧩 Partner Mode Dashboard")
     show_partner_toggle_panel()
@@ -48,16 +56,12 @@ if test_mode:
     st.sidebar.warning("Test Mode is ON — No data will be saved or emailed.")
     st.markdown("### ⚠️ TEST MODE: No data will be sent or stored.", unsafe_allow_html=True)
 
-# ✅ Load Toggles
-toggle_states = get_toggle_states()
-partner_config = get_partner_config()
-
 # ✅ Sponsored Header Ad
 if toggle_states.get("admin_toggle_enable_ads", False) and partner_config.get("partner_toggle_enable_partner_ads", False):
     st.markdown("### 📢 Sponsored Message")
     show_ad(location="header_ad", sport=st.session_state.get("selected_sport", "Football"))
 
-# ✅ App Branding
+# ✅ Branding
 st.title("🏈 NextPlay NIL")
 st.subheader("Own your brand. Win your next play.")
 st.subheader("Your NIL Strategy & Branding Assistant")
@@ -66,22 +70,21 @@ st.subheader("Your NIL Strategy & Branding Assistant")
 with st.expander("🎓 NIL Education"):
     run_nil_course()
 
-# ✅ Step 1: NIL Readiness Quiz
+# ✅ Step 1: Readiness Quiz
 if toggle_states.get("admin_toggle_step_1", True) and not partner_config.get("partner_toggle_hide_quiz", False):
     st.header("Step 1: NIL Readiness Quiz")
     quiz_score = 72 if test_mode else run_quiz()
     if quiz_score:
         st.success(f"🎯 Your NIL Match Score: {quiz_score}/100")
         st.markdown(calculate_score(quiz_score))
-        estimated_earnings = earnings_estimator(quiz_score)
-        st.info(f"💰 Estimated NIL Earning Potential: ${estimated_earnings:,.2f}")
+        st.info(f"💰 Estimated NIL Earning Potential: ${earnings_estimator(quiz_score):,.2f}")
 
-# ✅ Step 2: NIL Business Tools
+# ✅ Step 2: Business Tools
 if toggle_states.get("admin_toggle_step_2", True):
     st.header("Step 2: NIL Business Tools")
     deal_type = st.selectbox("Pick your need:", ["Brand Outreach Email", "Contract Template", "Social Media Post", "Thank You Note"])
     custom_name = st.text_input("Enter Athlete or Brand Name:")
-    if st.button("Generate My Template"):
+    if st.button("Generate My Template", key="btn_generate_template"):
         if custom_name:
             st.code(generate_template(deal_type, custom_name), language="markdown")
         else:
@@ -92,7 +95,7 @@ if toggle_states.get("admin_toggle_step_3", True):
     st.header("🧾 Step 3: NIL Deal Builder Wizard")
     run_wizard()
 
-# ✅ Step 4: Pitch Deck Generator
+# ✅ Step 4: Pitch Deck
 if toggle_states.get("admin_toggle_step_4", True) and partner_config.get("partner_toggle_enable_pitch", True):
     st.header("📊 Step 4: NIL Pitch Deck Generator")
     with st.form("pitch_deck_form"):
@@ -129,7 +132,9 @@ if toggle_states.get("admin_toggle_step_7", True) and partner_config.get("partne
             record_to_sheet(name, email, school)
             success, email_body = send_email(name, email, quiz_score)
         else:
-            pd.DataFrame([[name, email, school, quiz_score]], columns=["Name", "Email", "School", "Score"])               .to_csv("test_mode_log.csv", mode="a", index=False, header=False)
+            pd.DataFrame([[name, email, school, quiz_score]],
+                         columns=["Name", "Email", "School", "Score"]) \
+                .to_csv("test_mode_log.csv", mode="a", index=False, header=False)
             success = True
             email_body = get_email_body(name, quiz_score)
 
@@ -137,8 +142,8 @@ if toggle_states.get("admin_toggle_step_7", True) and partner_config.get("partne
             st.success("✅ Your info has been recorded. We will follow up with NIL tips and updates.")
             st.markdown("### 📄 Preview of Email Sent:")
             st.code(email_body)
-            if st.button("📤 Resend Email"):
+            if st.button("📤 Resend Email", key="resend_email_btn"):
                 send_email(name, email, quiz_score)
 
-# ✅ Always Show Leaderboard
+# ✅ Leaderboard Display
 display_leaderboard()
