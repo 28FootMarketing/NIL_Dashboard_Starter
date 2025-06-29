@@ -32,13 +32,13 @@ if "selected_sport" not in st.session_state:
 PartnerConfigHelper.initialize_defaults()
 
 # ✅ Admin Mode
+partner_config = PartnerConfigHelper.get_config()
 is_admin = check_admin_access()
+has_admin_access = is_admin and partner_config.get("partner_tier") == "Gold"
+
 if is_admin:
     render_admin_banner()
     show_admin_dashboard()
-partner_config = PartnerConfigHelper.get_config()
-
-has_admin_access = is_admin and partner_config.get("partner_tier") == "Gold"
 
 if has_admin_access:
     render_admin_banner()
@@ -50,6 +50,8 @@ if has_admin_access:
     def render_admin_sidebar():
         with st.sidebar:
             st.markdown("## 🧩 White-Label Settings")
+            
+# Partner Mode + Config Panel logic...
 
             partner_mode = st.session_state.get("partner_mode", False)
             if st.button("✅ Enable Partner Mode" if not partner_mode else "❌ Disable Partner Mode"):
