@@ -1,5 +1,6 @@
 import streamlit as st
 from utils.logger import log_change
+from utils.persistent_toggle_store import load_toggles, save_toggles
 
 # Central toggle label mapping for sidebar checkboxes
 TOGGLE_KEYS = {
