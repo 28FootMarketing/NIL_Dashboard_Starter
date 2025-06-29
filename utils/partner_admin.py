@@ -2,25 +2,26 @@
 
 import streamlit as st
 import json
-from utils.config import PARTNER_CONFIGS
+from utils.partner_config import PartnerConfigHelper  # ✅ Updated import
 
 def show_partner_admin():
     st.header("🔧 White-Label Partner Manager")
 
-    selected = st.selectbox("Choose Partner", list(PARTNER_CONFIGS.keys()))
-    current = PARTNER_CONFIGS[selected]
+    configs = PartnerConfigHelper.load_configs()  # ✅ Load current configs
+    selected = st.selectbox("Choose Partner", list(configs.keys()))
+    current = configs[selected]
 
-    st.text_input("Brand Name", current["brand_name"], key="brand_name")
-    st.text_input("Tagline", current["tagline"], key="tagline")
-    st.color_picker("Primary Color", current["primary_color"], key="primary_color")
-    st.text_input("Logo URL", current["logo_url"], key="logo_url")
-    st.text_input("Contact Email", current["contact_email"], key="contact_email")
+    st.text_input("Brand Name", value=current["brand_name"], key="brand_name")
+    st.text_input("Tagline", value=current["tagline"], key="tagline")
+    st.color_picker("Primary Color", value=current["primary_color"], key="primary_color")
+    st.text_input("Logo URL", value=current["logo_url"], key="logo_url")
+    st.text_input("Contact Email", value=current["contact_email"], key="contact_email")
 
     with st.expander("Feature Toggles"):
-        pitch = st.checkbox("Pitch Deck", current["features"]["pitch_deck"], key="pitch")
-        deal = st.checkbox("Deal Builder", current["features"]["deal_builder"], key="deal")
-        contract = st.checkbox("Contract PDF", current["features"]["contract_pdf"], key="contract")
-        admin = st.checkbox("Admin Tools", current["features"]["admin_tools"], key="admin")
+        pitch = st.checkbox("Pitch Deck", value=current["features"]["pitch_deck"], key="pitch")
+        deal = st.checkbox("Deal Builder", value=current["features"]["deal_builder"], key="deal")
+        contract = st.checkbox("Contract PDF", value=current["features"]["contract_pdf"], key="contract")
+        admin = st.checkbox("Admin Tools", value=current["features"]["admin_tools"], key="admin")
 
     if st.button("💾 Save Changes"):
         updated = {
@@ -36,18 +37,5 @@ def show_partner_admin():
                 "admin_tools": admin
             }
         }
-        save_partner_config(selected, updated)
+        PartnerConfigHelper.save_config(selected, updated)  # ✅ Use class method
         st.success(f"✅ Partner '{selected}' updated.")
-
-
-def save_partner_config(partner_id, updated_config):
-    try:
-        with open("utils/partner_configs.json", "r") as f:
-            configs = json.load(f)
-    except FileNotFoundError:
-        configs = {}
-
-    configs[partner_id] = updated_config
-
-    with open("utils/partner_configs.json", "w") as f:
-        json.dump(configs, f, indent=2)
