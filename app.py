@@ -13,26 +13,28 @@ from utils.case_studies import show_case_studies
 from utils.course_quiz import run_nil_course
 from utils.contact_handler import record_to_sheet, send_email, get_email_body
 from utils.admin_tools import check_admin_access, show_admin_dashboard, get_toggle_states, render_admin_banner
+from utils.partner_admin import show_partner_admin
 from utils.advertisements import show_ad
 from utils.partner_config import PartnerConfigHelper
-from utils.partner_dashboard import PartnerDashboard
 from utils.changelog_viewer import display_changelog
+from utils.partner_dashboard import PartnerDashboard
 
 # ✅ Page Setup
 st.set_page_config(page_title="NextPlay NIL", layout="centered")
 
-# ✅ Session State Defaults
+# ✅ Session State Initialization
 if "selected_sport" not in st.session_state:
     st.session_state["selected_sport"] = "Football"
 
 # ✅ Partner Config Defaults
 PartnerConfigHelper.initialize_defaults()
 
-# ✅ Admin Access
+# ✅ Admin Mode and Partner Tier Check
 partner_config = PartnerConfigHelper.get_config()
 is_admin = check_admin_access()
 has_admin_access = is_admin and partner_config.get("partner_tier") == "Gold"
 
+# ✅ Admin Banner + Dashboard
 if has_admin_access:
     render_admin_banner()
     show_admin_dashboard()
@@ -40,23 +42,25 @@ if has_admin_access:
     with st.sidebar:
         st.markdown("## 🧩 White-Label Settings")
 
-        # Toggle Partner Mode
+        # ✅ Partner Mode Toggle
         partner_mode = st.session_state.get("partner_mode", False)
-        if st.button("✅ Enable Partner Mode" if not partner_mode else "❌ Disable Partner Mode"):
+        toggle_button_label = "✅ Enable Partner Mode" if not partner_mode else "❌ Disable Partner Mode"
+
+        if st.button(toggle_button_label, key="toggle_partner_mode"):
             st.session_state["partner_mode"] = not partner_mode
             st.experimental_rerun()
 
-        # Config Panel Toggle
+        # ✅ Config Panel Toggle
         if st.session_state.get("partner_mode", False):
             config_panel_open = st.session_state.get("show_partner_config_panel", False)
+            config_button_label = "⚙️ Close Config Panel" if config_panel_open else "⚙️ Open Config Panel"
 
-            if st.button("⚙️ " + ("Close Config Panel" if config_panel_open else "Open Config Panel")):
+            if st.button(config_button_label, key="toggle_config_panel"):
                 st.session_state["show_partner_config_panel"] = not config_panel_open
                 st.experimental_rerun()
 
-            if config_panel_open:
-                with st.expander("🧱 Partner Config Panel", expanded=True):
-                    from utils.partner_admin import show_partner_admin
+            if st.session_state.get("show_partner_config_panel", False):
+                with st.expander("🧱 Config Panel", expanded=True):
                     show_partner_admin()
 
         st.markdown("### 📄 Changelog")
@@ -69,16 +73,16 @@ with st.sidebar:
         st.warning("Test Mode is ON — No data will be saved or emailed.")
         st.markdown("### ⚠️ TEST MODE: No data will be sent or stored.", unsafe_allow_html=True)
 
-# ✅ Feature Toggles
+# ✅ Load Feature Toggles
 toggle_states = get_toggle_states()
 
-# ✅ Sponsored Ad
+# ✅ Sponsored Header Ad
 partner_config = PartnerConfigHelper.get_config()
 if toggle_states.get("enable_ads", False) and partner_config.get("enable_partner_ads", False):
     st.markdown("### 📢 Sponsored Message")
     show_ad(location="header_ad", sport=st.session_state.get("selected_sport", "Football"))
 
-# ✅ Main Header
+# ✅ App Title
 st.title("🏈 NextPlay NIL")
 st.subheader("Own your brand. Win your next play.")
 st.subheader("Your NIL Strategy & Branding Assistant")
@@ -87,7 +91,7 @@ st.subheader("Your NIL Strategy & Branding Assistant")
 with st.expander("🎓 NIL Education"):
     run_nil_course()
 
-# ✅ Step 1: Readiness Quiz
+# ✅ Step 1: NIL Readiness Quiz
 if toggle_states.get("step_1", True):
     st.header("Step 1: NIL Readiness Quiz")
     quiz_score = 72 if test_mode else run_quiz()
@@ -97,7 +101,7 @@ if toggle_states.get("step_1", True):
         estimated_earnings = earnings_estimator(quiz_score)
         st.info(f"💰 Estimated NIL Earning Potential: ${estimated_earnings:,.2f}")
 
-# ✅ Step 2: Business Tools
+# ✅ Step 2: NIL Business Tools
 if toggle_states.get("step_2", True):
     st.header("Step 2: NIL Business Tools")
     deal_type = st.selectbox("Pick your need:", ["Brand Outreach Email", "Contract Template", "Social Media Post", "Thank You Note"])
@@ -161,6 +165,7 @@ if toggle_states.get("step_7", True):
                 st.code(email_body)
                 if st.button("📤 Resend Email"):
                     send_email(name, email, quiz_score)
+
         except Exception as e:
             st.error(f"An error occurred while submitting your form: {e}")
 
