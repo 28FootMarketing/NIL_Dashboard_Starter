@@ -1,35 +1,68 @@
+# utils/partner_config.py
+
+import os
+import json
 import streamlit as st
 
-class PartnerConfigHelper:
-    DEFAULTS = {
-        "partner_toggle_enable_partner_ads": False,
-        "partner_toggle_show_case_study": False,
-        "partner_toggle_custom_cta": False,
-        "partner_business_name": "Default Partner",
-        "show_partner_config_panel": False,
-        "partner_mode": False  # master toggle
-    }
+CONFIG_PATH = "utils/partner_configs.json"
 
-    @classmethod
-    def initialize_defaults(cls):
-        for key, default in cls.DEFAULTS.items():
-            if key not in st.session_state or type(st.session_state[key]) != type(default):
-                st.session_state[key] = default
-
-    @classmethod
-    def get_config(cls):
-        return {
-            "enable_partner_ads": st.session_state.get("partner_toggle_enable_partner_ads", False),
-            "show_case_study": st.session_state.get("partner_toggle_show_case_study", False),
-            "custom_cta_enabled": st.session_state.get("partner_toggle_custom_cta", False),
-            "business_name": st.session_state.get("partner_business_name", "Default Partner")
+DEFAULT_CONFIGS = {
+    "default_partner": {
+        "brand_name": "NextPlay NIL",
+        "tagline": "Own your brand. Win your next play.",
+        "primary_color": "#0a6cf1",
+        "logo_url": "https://nextplay.ai/logo.png",
+        "contact_email": "info@nextplay.ai",
+        "enable_partner_ads": True,
+        "features": {
+            "pitch_deck": True,
+            "deal_builder": True,
+            "contract_pdf": True,
+            "admin_tools": True
         }
+    }
+}
 
-    @classmethod
-    def render_toggle_panel(cls):
-        if st.session_state.get("show_partner_config_panel", False):
-            st.sidebar.subheader("🎛 Partner Settings")
-            st.sidebar.checkbox("Enable Partner Ads", key="partner_toggle_enable_partner_ads")
-            st.sidebar.checkbox("Show Case Study Block", key="partner_toggle_show_case_study")
-            st.sidebar.checkbox("Enable Custom CTA", key="partner_toggle_custom_cta")
-            st.sidebar.text_input("Partner Business Name", key="partner_business_name")
+
+class PartnerConfigHelper:
+
+    @staticmethod
+    def initialize_defaults():
+        """Create config file if it does not exist."""
+        if not os.path.exists(CONFIG_PATH):
+            with open(CONFIG_PATH, "w") as f:
+                json.dump(DEFAULT_CONFIGS, f, indent=2)
+
+    @staticmethod
+    def load_configs():
+        """Load all partner configs."""
+        if not os.path.exists(CONFIG_PATH):
+            PartnerConfigHelper.initialize_defaults()
+        with open(CONFIG_PATH, "r") as f:
+            return json.load(f)
+
+    @staticmethod
+    def get_config(partner_id="default_partner"):
+        """Retrieve config for current or default partner."""
+        configs = PartnerConfigHelper.load_configs()
+        return configs.get(partner_id, DEFAULT_CONFIGS["default_partner"])
+
+    @staticmethod
+    def save_config(partner_id, config_data):
+        """Save updated config for a given partner."""
+        configs = PartnerConfigHelper.load_configs()
+        configs[partner_id] = config_data
+        with open(CONFIG_PATH, "w") as f:
+            json.dump(configs, f, indent=2)
+
+    @staticmethod
+    def render_toggle_panel():
+        """Optional: Show partner toggles visually (for admins)."""
+        config = PartnerConfigHelper.get_config()
+        with st.expander("⚙️ Partner Toggles"):
+            st.markdown(f"**Brand:** {config['brand_name']}")
+            st.markdown(f"**Tagline:** {config['tagline']}")
+            st.color_picker("Primary Color", config["primary_color"], key="panel_primary_color")
+            st.write("Feature Access:")
+            for feature, value in config["features"].items():
+                st.checkbox(f"{feature.replace('_', ' ').title()}", value=value, key=f"panel_{feature}")
