@@ -53,6 +53,7 @@ if has_admin_access:
             
 # Partner Mode + Config Panel logic...
 
+    if is_admin:
     with st.sidebar:
         st.markdown("## 🧩 White-Label Settings")
 
@@ -72,8 +73,7 @@ if has_admin_access:
 
         st.markdown("### 📄 Changelog")
         display_changelog()
-
-            
+   
 col1, col2 = st.columns(2)
 if col1.button("✏️ Edit Partner"):
     st.success("Ready to edit. Make your changes below.")
