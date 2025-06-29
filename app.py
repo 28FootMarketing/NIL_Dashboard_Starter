@@ -17,6 +17,7 @@ from utils.partner_admin import show_partner_admin
 from utils.advertisements import show_ad
 from utils.partner_config import get_partner_config, show_partner_toggle_panel
 from utils.changelog_viewer import display_changelog
+from utils.partner_banner_editor import show_partner_banner_editor
 
 # ✅ Page Setup
 st.set_page_config(page_title="NextPlay NIL", layout="centered")
@@ -30,17 +31,27 @@ is_admin = check_admin_access()
 if is_admin:
     render_admin_banner()
     show_admin_dashboard()
+
     with st.sidebar:
         if st.button("🧩 Partner Config Panel"):
             show_partner_admin()
             show_partner_toggle_panel()
+
+        if st.button("📝 Edit Partner Message"):
+            st.session_state["show_banner_editor"] = True
+
     with st.sidebar.expander("📄 View Changelog"):
         display_changelog()
+
+    if st.session_state.get("show_banner_editor", False):
+        st.subheader("📝 Partner Message Editor")
+        show_partner_banner_editor()
 
 # ✅ Partner Mode Dashboard (Admin only)
 if is_admin and st.session_state.get("partner_mode", True):
     st.header("🧩 Partner Mode Dashboard")
     show_partner_toggle_panel()
+    # display_partner_leads()  # Uncomment when implemented
 
 # ✅ Test Mode
 test_mode = st.sidebar.checkbox("🧪 Enable Test Mode (Safe Demo)")
@@ -50,12 +61,16 @@ if test_mode:
 
 # ✅ Load Feature Toggles
 toggle_states = get_toggle_states()
-partner_config = get_partner_config()
 
 # ✅ Sponsored Header Ad (Only if both global + partner toggles are on)
-if toggle_states.get("enable_ads", False) and st.session_state.get("partner_toggle_enable_partner_ads", False):
+partner_config = get_partner_config()
+if (
+    toggle_states.get("enable_ads", False)
+    and st.session_state.get("partner_toggle_enable_partner_ads", False)
+    and partner_config.get("show_partner_banner", True)
+):
     st.markdown("### 📢 Sponsored Message")
-    show_ad(location="header_ad", sport=st.session_state.get("selected_sport", "Football"))
+    st.info(partner_config.get("partner_banner_message", "Partner promotion message coming soon."))
 
 # ✅ App Branding
 st.title("🏈 NextPlay NIL")
@@ -67,7 +82,7 @@ with st.expander("🎓 NIL Education"):
     run_nil_course()
 
 # ✅ Step 1: NIL Readiness Quiz
-if toggle_states.get("step_1", True) and not partner_config.get("partner_toggle_hide_quiz", False):
+if toggle_states.get("step_1", True):
     st.header("Step 1: NIL Readiness Quiz")
     quiz_score = 72 if test_mode else run_quiz()
     if quiz_score:
@@ -77,7 +92,7 @@ if toggle_states.get("step_1", True) and not partner_config.get("partner_toggle_
         st.info(f"💰 Estimated NIL Earning Potential: ${estimated_earnings:,.2f}")
 
 # ✅ Step 2: NIL Business Tools
-if toggle_states.get("step_2", True) and not partner_config.get("partner_toggle_hide_tools", False):
+if toggle_states.get("step_2", True):
     st.header("Step 2: NIL Business Tools")
     deal_type = st.selectbox("Pick your need:", ["Brand Outreach Email", "Contract Template", "Social Media Post", "Thank You Note"])
     custom_name = st.text_input("Enter Athlete or Brand Name:")
@@ -88,12 +103,12 @@ if toggle_states.get("step_2", True) and not partner_config.get("partner_toggle_
             st.warning("Please enter a name or brand.")
 
 # ✅ Step 3: Deal Builder Wizard
-if toggle_states.get("step_3", True) and not partner_config.get("partner_toggle_hide_builder", False):
+if toggle_states.get("step_3", True):
     st.header("🧾 Step 3: NIL Deal Builder Wizard")
     run_wizard()
 
 # ✅ Step 4: Pitch Deck Generator
-if toggle_states.get("step_4", True) and not partner_config.get("partner_toggle_hide_pitchdeck", False):
+if toggle_states.get("step_4", True):
     st.header("📊 Step 4: NIL Pitch Deck Generator")
     with st.form("pitch_deck_form"):
         name = st.text_input("Your Name")
@@ -106,17 +121,17 @@ if toggle_states.get("step_4", True) and not partner_config.get("partner_toggle_
             st.code(build_pitch_deck(name, sport, followers, stats, goals), language="markdown")
 
 # ✅ Step 5: Weekly Content Plan
-if toggle_states.get("step_5", True) and not partner_config.get("partner_toggle_hide_calendar", False):
+if toggle_states.get("step_5", True):
     st.header("📅 Step 5: Weekly Content Plan")
     display_calendar()
 
 # ✅ Step 6: NIL Success Stories
-if toggle_states.get("step_6", True) and not partner_config.get("partner_toggle_hide_stories", False):
+if toggle_states.get("step_6", True):
     st.header("📚 Step 6: Real NIL Success Stories")
     show_case_studies()
 
 # ✅ Step 7: Contact Form
-if toggle_states.get("step_7", True) and not partner_config.get("partner_toggle_hide_contact", False):
+if toggle_states.get("step_7", True):
     st.header("📥 Step 7: Stay in the NIL Loop")
     with st.form("contact_form"):
         name = st.text_input("Your Full Name")
