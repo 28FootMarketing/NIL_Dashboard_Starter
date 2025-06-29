@@ -18,7 +18,7 @@ from utils.advertisements import show_ad
 from utils.partner_config import get_partner_config, show_partner_toggle_panel
 from utils.changelog_viewer import display_changelog
 
-# ✅ Page Setup (this must come first)
+# ✅ Page Setup
 st.set_page_config(page_title="NextPlay NIL", layout="centered")
 
 # ✅ Session State Initialization
@@ -42,23 +42,25 @@ if is_admin and st.session_state.get("partner_mode", True):
     st.header("🧩 Partner Mode Dashboard")
     show_partner_toggle_panel()
 
-# ✅ Test Mode Toggle (must be after sidebar is initialized)
+# ✅ Test Mode
 test_mode = st.sidebar.checkbox("🧪 Enable Test Mode (Safe Demo)")
 if test_mode:
     st.sidebar.warning("Test Mode is ON — No data will be saved or emailed.")
     st.markdown("### ⚠️ TEST MODE: No data will be sent or stored.", unsafe_allow_html=True)
 
-# ✅ Safe to now load toggle states
-toggle_states = get_toggle_states()
-partner_config = get_partner_config()
-# ✅ Load Global and Partner Toggles
+# ✅ Load Feature Toggles
 toggle_states = get_toggle_states()
 partner_config = get_partner_config()
 
 # ✅ Sponsored Header Ad (Only if both global + partner toggles are on)
-if toggle_states.get("enable_ads", False) and partner_config.get("partner_toggle_enable_partner_ads", False):
+if toggle_states.get("enable_ads", False) and st.session_state.get("partner_toggle_enable_partner_ads", False):
     st.markdown("### 📢 Sponsored Message")
     show_ad(location="header_ad", sport=st.session_state.get("selected_sport", "Football"))
+
+# ✅ App Branding
+st.title("🏈 NextPlay NIL")
+st.subheader("Own your brand. Win your next play.")
+st.subheader("Your NIL Strategy & Branding Assistant")
 
 # ✅ Step 0: NIL Education (Always Shown)
 with st.expander("🎓 NIL Education"):
@@ -75,7 +77,7 @@ if toggle_states.get("step_1", True) and not partner_config.get("partner_toggle_
         st.info(f"💰 Estimated NIL Earning Potential: ${estimated_earnings:,.2f}")
 
 # ✅ Step 2: NIL Business Tools
-if toggle_states.get("step_2", True):
+if toggle_states.get("step_2", True) and not partner_config.get("partner_toggle_hide_tools", False):
     st.header("Step 2: NIL Business Tools")
     deal_type = st.selectbox("Pick your need:", ["Brand Outreach Email", "Contract Template", "Social Media Post", "Thank You Note"])
     custom_name = st.text_input("Enter Athlete or Brand Name:")
@@ -86,12 +88,12 @@ if toggle_states.get("step_2", True):
             st.warning("Please enter a name or brand.")
 
 # ✅ Step 3: Deal Builder Wizard
-if toggle_states.get("step_3", True):
+if toggle_states.get("step_3", True) and not partner_config.get("partner_toggle_hide_builder", False):
     st.header("🧾 Step 3: NIL Deal Builder Wizard")
     run_wizard()
 
 # ✅ Step 4: Pitch Deck Generator
-if toggle_states.get("step_4", True) and not partner_config.get("partner_toggle_hide_pitch_deck", False):
+if toggle_states.get("step_4", True) and not partner_config.get("partner_toggle_hide_pitchdeck", False):
     st.header("📊 Step 4: NIL Pitch Deck Generator")
     with st.form("pitch_deck_form"):
         name = st.text_input("Your Name")
@@ -104,17 +106,17 @@ if toggle_states.get("step_4", True) and not partner_config.get("partner_toggle_
             st.code(build_pitch_deck(name, sport, followers, stats, goals), language="markdown")
 
 # ✅ Step 5: Weekly Content Plan
-if toggle_states.get("step_5", True):
+if toggle_states.get("step_5", True) and not partner_config.get("partner_toggle_hide_calendar", False):
     st.header("📅 Step 5: Weekly Content Plan")
     display_calendar()
 
 # ✅ Step 6: NIL Success Stories
-if toggle_states.get("step_6", True) and partner_config.get("partner_toggle_enable_testimonials", True):
+if toggle_states.get("step_6", True) and not partner_config.get("partner_toggle_hide_stories", False):
     st.header("📚 Step 6: Real NIL Success Stories")
     show_case_studies()
 
 # ✅ Step 7: Contact Form
-if toggle_states.get("step_7", True) and not partner_config.get("partner_toggle_hide_contact_form", False):
+if toggle_states.get("step_7", True) and not partner_config.get("partner_toggle_hide_contact", False):
     st.header("📥 Step 7: Stay in the NIL Loop")
     with st.form("contact_form"):
         name = st.text_input("Your Full Name")
