@@ -38,6 +38,22 @@ if is_admin:
     render_admin_banner()
     show_admin_dashboard()
 
+# ✅ Admin Sidebar: Partner Mode + Partner Config Panel Toggles
+if is_admin:
+    with st.sidebar:
+        st.markdown("## 🧩 Partner Controls")
+
+        # Toggle Partner Mode
+        if st.button("✅ Enable Partner Mode" if not st.session_state.get("partner_mode", False) else "❌ Disable Partner Mode"):
+            st.session_state["partner_mode"] = not st.session_state.get("partner_mode", False)
+            st.rerun()
+
+        # Toggle Partner Config Panel
+        if st.session_state.get("partner_mode", False):
+            if st.button("⚙️ Open Partner Config Panel"):
+                st.session_state["show_partner_config_panel"] = not st.session_state.get("show_partner_config_panel", False)
+
+
 # ✅ Admin Sidebar Controls
 if is_admin:
     with st.sidebar:
