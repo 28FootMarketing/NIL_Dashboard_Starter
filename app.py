@@ -19,6 +19,7 @@ from utils.partner_config import get_partner_config, show_partner_toggle_panel
 from utils.changelog_viewer import display_changelog
 from utils.partner_banner_editor import show_partner_banner_editor
 from utils.logger import log_change
+from utils.partner_branding import show_brand_preview_panel
 
 # ✅ Page Setup
 st.set_page_config(page_title="NextPlay NIL", layout="centered")
@@ -47,6 +48,9 @@ if is_admin:
     if st.session_state.get("show_banner_editor", False):
         st.subheader("📝 Partner Message Editor")
         show_partner_banner_editor()
+if is_admin and st.session_state.get("partner_mode", True):
+    st.markdown("## 🧩 Partner Branding Settings")
+    show_brand_preview_panel(partner_config)
 
 # ✅ Partner Mode Dashboard (Admin only)
 if is_admin and st.session_state.get("partner_mode", True):
