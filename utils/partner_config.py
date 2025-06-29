@@ -12,6 +12,7 @@ DEFAULT_CONFIGS = {
         "primary_color": "#0a6cf1",
         "logo_url": "https://nextplay.ai/logo.png",
         "contact_email": "info@nextplay.ai",
+        "partner_tier": "Gold",  # ⬅️ Add tier here
         "enable_partner_ads": True,
         "features": {
             "pitch_deck": True,
@@ -21,6 +22,7 @@ DEFAULT_CONFIGS = {
         }
     }
 }
+
 
 class PartnerConfigHelper:
 
