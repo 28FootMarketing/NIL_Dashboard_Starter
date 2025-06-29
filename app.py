@@ -75,6 +75,10 @@ if st.session_state.get("partner_mode", False):
     with st.sidebar.expander("📄 View Changelog"):
         display_changelog()
 
+# ✅ Partner Config Panel UI 
+if st.session_state.get("partner_mode", False) and st.session_state.get("show_partner_config_panel", False):
+    show_partner_admin()
+
 # ✅ Test Mode
 test_mode = st.sidebar.checkbox("🧪 Enable Test Mode (Safe Demo)")
 if test_mode:
