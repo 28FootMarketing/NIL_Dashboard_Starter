@@ -38,6 +38,16 @@ if is_admin:
     render_admin_banner()
     show_admin_dashboard()
 
+# ✅ Admin Sidebar Controls
+if is_admin:
+    with st.sidebar:
+        if st.button("🧩 Enable Partner Mode"):
+            st.session_state["partner_mode"] = True
+            st.rerun()  # Optional: refresh app state
+        if st.session_state.get("partner_mode", False):
+            if st.button("⚙️ Open Partner Config Panel"):
+                st.session_state["show_partner_config_panel"] = True
+
 # ✅ Partner Mode
 if st.session_state.get("partner_mode", False):
     PartnerDashboard().render()
