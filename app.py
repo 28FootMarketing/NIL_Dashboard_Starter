@@ -20,6 +20,7 @@ from utils.changelog_viewer import display_changelog
 from utils.partner_banner_editor import show_partner_banner_editor
 from utils.logger import log_change
 from utils.partner_branding import show_brand_preview_panel
+from utils.partner_resources import show_partner_resources
 
 # ✅ Page Setup
 st.set_page_config(page_title="NextPlay NIL", layout="centered")
@@ -82,6 +83,11 @@ st.title("🏈 NextPlay NIL")
 st.subheader("Own your brand. Win your next play.")
 st.subheader("Your NIL Strategy & Branding Assistant")
 
+# ✅ RESOURCES
+if partner_config.get("partner_toggle_show_resources", False):
+    st.header("📚 Partner Resource Library")
+    show_partner_resources(partner_config.get("partner_id", "default"))
+    
 # ✅ Step 0: NIL Education (Always Shown)
 with st.expander("🎓 NIL Education"):
     run_nil_course()
@@ -161,5 +167,10 @@ if toggle_states.get("step_7", True):
             if st.button("📤 Resend Email"):
                 send_email(name, email, quiz_score)
 
+display_leaderboard(school=school_filter, sport=sport_filter, partner=partner_filter)
+
 # ✅ Always Show Leaderboard
 display_leaderboard()
+school_filter = st.sidebar.selectbox("Filter by School", ["All"] + school_list)
+sport_filter = st.sidebar.selectbox("Filter by Sport", ["All"] + sport_list)
+partner_filter = st.sidebar.selectbox("Filter by Partner", ["All"] + partner_list)
