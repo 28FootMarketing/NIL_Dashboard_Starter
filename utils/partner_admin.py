@@ -2,7 +2,7 @@
 
 import streamlit as st
 import json
-
+from utils.config import PARTNER_CONFIGS
 
 def show_partner_admin():
     st.header("🔧 White-Label Partner Manager")
