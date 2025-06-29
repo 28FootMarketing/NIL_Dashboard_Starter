@@ -37,37 +37,35 @@ if is_admin:
     render_admin_banner()
     show_admin_dashboard()
 
-# ✅ Unified Sidebar for Admins
-if is_admin:
-    with st.sidebar:
-        st.markdown("## 🧩 White-Label Settings")
+    def render_admin_sidebar():
+        with st.sidebar:
+            st.markdown("## 🧩 White-Label Settings")
 
-        # Toggle Partner Mode
-        partner_mode = st.session_state.get("partner_mode", False)
-        if st.button("✅ Enable Partner Mode" if not partner_mode else "❌ Disable Partner Mode"):
-            st.session_state["partner_mode"] = not partner_mode
-            st.experimental_rerun()
-
-        # Toggle Partner Config Panel
-        if st.session_state.get("partner_mode", False):
-            config_panel_open = st.session_state.get("show_partner_config_panel", False)
-            if st.button("⚙️ " + ("Close" if config_panel_open else "Open") + " Config Panel"):
-                st.session_state["show_partner_config_panel"] = not config_panel_open
+            partner_mode = st.session_state.get("partner_mode", False)
+            if st.button("✅ Enable Partner Mode" if not partner_mode else "❌ Disable Partner Mode"):
+                st.session_state["partner_mode"] = not partner_mode
                 st.experimental_rerun()
 
-            # Show Partner Config UI inside sidebar
-            with st.expander("🧱 Config Panel"):
-                show_partner_admin()
+            if st.session_state.get("partner_mode", False):
+                config_panel_open = st.session_state.get("show_partner_config_panel", False)
+                if st.button("⚙️ " + ("Close" if config_panel_open else "Open") + " Config Panel"):
+                    st.session_state["show_partner_config_panel"] = not config_panel_open
+                    st.experimental_rerun()
 
-        # Always available changelog
-        st.markdown("### 📄 Changelog")
-        display_changelog()
+                with st.expander("🧱 Config Panel"):
+                    show_partner_admin()
+
+            st.markdown("### 📄 Changelog")
+            display_changelog()
+
+    render_admin_sidebar()
 
 # ✅ Test Mode
-test_mode = st.sidebar.checkbox("🧪 Enable Test Mode (Safe Demo)")
-if test_mode:
-    st.sidebar.warning("Test Mode is ON — No data will be saved or emailed.")
-    st.markdown("### ⚠️ TEST MODE: No data will be sent or stored.", unsafe_allow_html=True)
+with st.sidebar:
+    test_mode = st.checkbox("🧪 Enable Test Mode (Safe Demo)")
+    if test_mode:
+        st.warning("Test Mode is ON — No data will be saved or emailed.")
+        st.markdown("### ⚠️ TEST MODE: No data will be sent or stored.", unsafe_allow_html=True)
 
 # ✅ Load Feature Toggles
 toggle_states = get_toggle_states()
@@ -146,21 +144,25 @@ if toggle_states.get("step_7", True):
         submitted = st.form_submit_button("Submit")
 
     if submitted:
-        if not test_mode:
-            record_to_sheet(name, email, school)
-            success, email_body = send_email(name, email, quiz_score)
-        else:
-            pd.DataFrame([[name, email, school, quiz_score]], columns=["Name", "Email", "School", "Score"]) \
-              .to_csv("test_mode_log.csv", mode="a", index=False, header=False)
-            success = True
-            email_body = get_email_body(name, quiz_score)
+        try:
+            if not test_mode:
+                record_to_sheet(name, email, school)
+                success, email_body = send_email(name, email, quiz_score)
+            else:
+                pd.DataFrame([[name, email, school, quiz_score]], columns=["Name", "Email", "School", "Score"]) \
+                    .to_csv("test_mode_log.csv", mode="a", index=False, header=False)
+                success = True
+                email_body = get_email_body(name, quiz_score)
 
-        if success:
-            st.success("✅ Your info has been recorded. We will follow up with NIL tips and updates.")
-            st.markdown("### 📄 Preview of Email Sent:")
-            st.code(email_body)
-            if st.button("📤 Resend Email"):
-                send_email(name, email, quiz_score)
+            if success:
+                st.success("✅ Your info has been recorded. We will follow up with NIL tips and updates.")
+                st.markdown("### 📄 Preview of Email Sent:")
+                st.code(email_body)
+                if st.button("📤 Resend Email"):
+                    send_email(name, email, quiz_score)
+
+        except Exception as e:
+            st.error(f"An error occurred while submitting your form: {e}")
 
 # ✅ Leaderboard
 display_leaderboard()
