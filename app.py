@@ -18,6 +18,7 @@ from utils.advertisements import show_ad
 from utils.partner_config import get_partner_config, show_partner_toggle_panel
 from utils.changelog_viewer import display_changelog
 from utils.partner_banner_editor import show_partner_banner_editor
+from utils.logger import log_change
 
 # ✅ Page Setup
 st.set_page_config(page_title="NextPlay NIL", layout="centered")
