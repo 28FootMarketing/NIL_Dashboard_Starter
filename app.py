@@ -21,6 +21,7 @@ from utils.partner_banner_editor import show_partner_banner_editor
 from utils.logger import log_change
 from utils.partner_branding import show_brand_preview_panel
 from utils.partner_resources import show_partner_resources
+from utils.report_generator import generate_nil_report
 
 # ✅ Page Setup
 st.set_page_config(page_title="NextPlay NIL", layout="centered")
@@ -87,6 +88,12 @@ st.subheader("Your NIL Strategy & Branding Assistant")
 if partner_config.get("partner_toggle_show_resources", False):
     st.header("📚 Partner Resource Library")
     show_partner_resources(partner_config.get("partner_id", "default"))
+    
+# ✅ Reports
+if st.button("📄 Generate NIL Brand Report"):
+    file_path = generate_nil_report(name, quiz_score, goals, stats, partner_config)
+    st.success("Report ready!")
+    st.markdown(f"[📥 Download Report]({file_path})")
     
 # ✅ Step 0: NIL Education (Always Shown)
 with st.expander("🎓 NIL Education"):
