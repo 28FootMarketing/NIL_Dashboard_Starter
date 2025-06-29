@@ -32,7 +32,6 @@ if "selected_sport" not in st.session_state:
 PartnerConfigHelper.initialize_defaults()
 
 # ✅ Admin Mode
-# ✅ Admin + Partner Tier Access Check
 partner_config = PartnerConfigHelper.get_config()
 is_admin = check_admin_access()
 has_admin_access = is_admin and partner_config.get("partner_tier") == "Gold"
@@ -44,13 +43,11 @@ if has_admin_access:
     with st.sidebar:
         st.markdown("## 🧩 White-Label Settings")
 
-        # Toggle Partner Mode
         partner_mode = st.session_state.get("partner_mode", False)
         if st.button("✅ Enable Partner Mode" if not partner_mode else "❌ Disable Partner Mode"):
             st.session_state["partner_mode"] = not partner_mode
             st.experimental_rerun()
 
-        # Show Partner Config Panel if enabled
         if st.session_state.get("partner_mode", False):
             config_panel_open = st.session_state.get("show_partner_config_panel", False)
             if st.button("⚙️ " + ("Close" if config_panel_open else "Open") + " Config Panel"):
@@ -63,24 +60,17 @@ if has_admin_access:
         st.markdown("### 📄 Changelog")
         display_changelog()
 
+    col1, col2 = st.columns(2)
+    if col1.button("✏️ Edit Partner"):
+        st.success("Ready to edit. Make your changes below.")
 
-            with st.expander("🧱 Config Panel"):
-                show_partner_admin()
-
-        st.markdown("### 📄 Changelog")
-        display_changelog()
-   
-col1, col2 = st.columns(2)
-if col1.button("✏️ Edit Partner"):
-    st.success("Ready to edit. Make your changes below.")
-
-if col2.button("🗑️ Delete Partner"):
-    del configs[selected]
-    PartnerConfigHelper.save_config(selected=None, config_data=configs)
-    st.warning(f"Partner '{selected}' deleted. Refresh the page.")
-    st.stop()
-    
-    render_admin_sidebar()
+    if col2.button("🗑️ Delete Partner"):
+        configs = PartnerConfigHelper.load_configs()
+        selected = list(configs.keys())[0]  # Default to first key
+        del configs[selected]
+        PartnerConfigHelper.save_config(partner_id=None, config_data=configs)
+        st.warning(f"Partner '{selected}' deleted. Refresh the page.")
+        st.stop()
 
 # ✅ Test Mode
 with st.sidebar:
@@ -171,8 +161,7 @@ if toggle_states.get("step_7", True):
                 record_to_sheet(name, email, school)
                 success, email_body = send_email(name, email, quiz_score)
             else:
-                pd.DataFrame([[name, email, school, quiz_score]], columns=["Name", "Email", "School", "Score"]) \
-                    .to_csv("test_mode_log.csv", mode="a", index=False, header=False)
+                pd.DataFrame([[name, email, school, quiz_score]], columns=["Name", "Email", "School", "Score"]).to_csv("test_mode_log.csv", mode="a", index=False, header=False)
                 success = True
                 email_body = get_email_body(name, quiz_score)
 
