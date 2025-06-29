@@ -24,6 +24,14 @@ st.set_page_config(page_title="NextPlay NIL", layout="centered")
 # ✅ Session State Initialization
 if "selected_sport" not in st.session_state:
     st.session_state["selected_sport"] = "Football"
+if "partner_mode" not in st.session_state:
+    st.session_state["partner_mode"] = False
+if "athlete_filter" not in st.session_state:
+    st.session_state["athlete_filter"] = "All Athletes"
+if "ui_theme" not in st.session_state:
+    st.session_state["ui_theme"] = "Classic"
+if "partner_message" not in st.session_state:
+    st.session_state["partner_message"] = ""
 
 # ✅ Admin Mode
 is_admin = check_admin_access()
@@ -37,11 +45,26 @@ if is_admin:
     with st.sidebar.expander("📄 View Changelog"):
         display_changelog()
 
-# ✅ Partner Mode Toggle (Safe Assignment)
-if "partner_mode" not in st.session_state:
-    st.session_state["partner_mode"] = False
-partner_mode_toggle = st.sidebar.checkbox("🎛️ Enable Partner Mode", value=st.session_state["partner_mode"])
-st.session_state["partner_mode"] = partner_mode_toggle
+# ✅ Sidebar Enhancements
+with st.sidebar:
+    # Partner Mode Toggle (Safe)
+    partner_mode_toggle = st.checkbox("🎛️ Enable Partner Mode", value=st.session_state["partner_mode"])
+    st.session_state["partner_mode"] = partner_mode_toggle
+
+    # Athlete Filter
+    athlete_type = st.selectbox("🏅 View as:", ["All Athletes", "High Potential", "Needs Guidance", "Test Account"])
+    st.session_state["athlete_filter"] = athlete_type
+
+    # UI Theme
+    theme = st.radio("🎨 Select Theme", ["Classic", "Modern", "Youth Edition", "Pro Edition"])
+    st.session_state["ui_theme"] = theme
+
+    # Partner Message Editor
+    if is_admin and st.session_state["partner_mode"]:
+        with st.expander("📢 Partner Message Editor"):
+            msg = st.text_area("Header Message", value=st.session_state["partner_message"])
+            if st.button("💾 Save Partner Message"):
+                st.session_state["partner_message"] = msg
 
 # ✅ Partner Mode Dashboard
 if is_admin and st.session_state["partner_mode"]:
@@ -62,6 +85,10 @@ partner_config = get_partner_config()
 if toggle_states.get("admin_toggle_enable_ads", False) and partner_config.get("partner_toggle_enable_partner_ads", False):
     st.markdown("### 📢 Sponsored Message")
     show_ad(location="header_ad", sport=st.session_state.get("selected_sport", "Football"))
+
+# ✅ Partner Header Message
+if st.session_state.get("partner_message"):
+    st.markdown(f"### 💬 {st.session_state['partner_message']}")
 
 # ✅ App Branding
 st.title("🏈 NextPlay NIL")
@@ -135,7 +162,8 @@ if toggle_states.get("admin_toggle_step_7", True) and partner_config.get("partne
             record_to_sheet(name, email, school)
             success, email_body = send_email(name, email, quiz_score)
         else:
-            pd.DataFrame([[name, email, school, quiz_score]], columns=["Name", "Email", "School", "Score"])               .to_csv("test_mode_log.csv", mode="a", index=False, header=False)
+            pd.DataFrame([[name, email, school, quiz_score]], columns=["Name", "Email", "School", "Score"]) \
+              .to_csv("test_mode_log.csv", mode="a", index=False, header=False)
             success = True
             email_body = get_email_body(name, quiz_score)
 
