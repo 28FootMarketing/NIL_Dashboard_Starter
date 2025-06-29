@@ -1,3 +1,56 @@
+import streamlit as st
+import pandas as pd
+
+# Utility Imports
+from utils.quiz_logic import run_quiz
+from utils.content_templates import generate_template
+from utils.nil_score import calculate_score
+from utils.leaderboard import display_leaderboard, earnings_estimator
+from utils.pitch_deck_generator import build_pitch_deck
+from utils.calendar_generator import display_calendar
+from utils.nil_wizard import run_wizard
+from utils.case_studies import show_case_studies
+from utils.course_quiz import run_nil_course
+from utils.contact_handler import record_to_sheet, send_email, get_email_body
+from utils.admin_tools import check_admin_access, show_admin_dashboard, get_toggle_states, render_admin_banner
+from utils.partner_admin import show_partner_admin
+from utils.advertisements import show_ad
+from utils.partner_config import get_partner_config, show_partner_toggle_panel
+from utils.changelog_viewer import display_changelog
+
+# ✅ Page Setup (this must come first)
+st.set_page_config(page_title="NextPlay NIL", layout="centered")
+
+# ✅ Session State Initialization
+if "selected_sport" not in st.session_state:
+    st.session_state["selected_sport"] = "Football"
+
+# ✅ Admin Mode
+is_admin = check_admin_access()
+if is_admin:
+    render_admin_banner()
+    show_admin_dashboard()
+    with st.sidebar:
+        if st.button("🧩 Partner Config Panel"):
+            show_partner_admin()
+            show_partner_toggle_panel()
+    with st.sidebar.expander("📄 View Changelog"):
+        display_changelog()
+
+# ✅ Partner Mode Dashboard (Admin only)
+if is_admin and st.session_state.get("partner_mode", True):
+    st.header("🧩 Partner Mode Dashboard")
+    show_partner_toggle_panel()
+
+# ✅ Test Mode Toggle (must be after sidebar is initialized)
+test_mode = st.sidebar.checkbox("🧪 Enable Test Mode (Safe Demo)")
+if test_mode:
+    st.sidebar.warning("Test Mode is ON — No data will be saved or emailed.")
+    st.markdown("### ⚠️ TEST MODE: No data will be sent or stored.", unsafe_allow_html=True)
+
+# ✅ Safe to now load toggle states
+toggle_states = get_toggle_states()
+partner_config = get_partner_config()
 # ✅ Load Global and Partner Toggles
 toggle_states = get_toggle_states()
 partner_config = get_partner_config()
