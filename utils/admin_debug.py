@@ -1,14 +1,22 @@
 import streamlit as st
 from utils.contact_handler import send_email
 from utils.leaderboard import earnings_estimator
+from utils.partner_config import get_partner_config
 
 def render_admin_debug_panel():
     st.markdown("## 📊 Admin Analytics Panel")
-    
+
+    # ✅ Pull current partner info
+    partner_config = get_partner_config()
+    partner_name = partner_config.get("partner_display_name", "Default Partner")
+    partner_id = partner_config.get("partner_id", "unknown")
+
+    st.info(f"👤 Current Partner: **{partner_name}**  \n🔗 Partner ID: `{partner_id}`")
+
     st.markdown("**Session Metrics**")
-    active_users = 14  # TODO: Replace with dynamic value from DB or tracking system
-    errors_today = 2   # TODO: Hook into logging system
-    
+    active_users = 14  # TODO: Replace with dynamic source
+    errors_today = 2   # TODO: Log system integration
+
     quiz_score = st.session_state.get("last_quiz_score", 0)
     earnings = earnings_estimator(quiz_score)
 
@@ -28,3 +36,7 @@ def render_admin_debug_panel():
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.experimental_rerun()
+
+    st.markdown("---")
+    with st.expander("📁 Partner Config Debug"):
+        st.json(partner_config)
