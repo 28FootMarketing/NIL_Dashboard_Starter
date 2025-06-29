@@ -41,13 +41,15 @@ if has_admin_access:
     show_admin_dashboard()
 
     with st.sidebar:
-        st.markdown("## 🧩 White-Label Settings")
+    st.markdown("## 🧩 White-Label Settings")
 
-        # Toggle Partner Mode
-        partner_mode = st.session_state.get("partner_mode", False)
-        if st.button("✅ Enable Partner Mode" if not partner_mode else "❌ Disable Partner Mode"):
-            st.session_state["partner_mode"] = not partner_mode
-            st.experimental_rerun()
+    partner_mode = st.session_state.get("partner_mode", False)
+    toggle_label = "✅ Enable Partner Mode" if not partner_mode else "❌ Disable Partner Mode"
+
+    if st.button(toggle_label):
+        st.session_state["partner_mode"] = not partner_mode
+        st.experimental_rerun()  # ✅ Safe to call here because it is in a user interaction block
+
 
         # Show Partner Config Panel if enabled
         if st.session_state.get("partner_mode", False):
