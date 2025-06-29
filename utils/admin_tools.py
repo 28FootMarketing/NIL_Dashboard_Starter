@@ -24,13 +24,17 @@ def check_admin_access():
 def show_admin_dashboard():
     """Show toggles to manage visibility of app sections."""
     st.sidebar.subheader("🛠️ Admin Controls")
+    toggles = load_toggles()
+
     for key, label in TOGGLE_KEYS.items():
-        prev = st.session_state.get(key, True)
+        prev = toggles.get(key, True)
         new_val = st.sidebar.checkbox(label, value=prev)
         if new_val != prev:
             log_change(f"Toggled '{label}' from {prev} to {new_val}", actor="Admin")
         st.session_state[key] = new_val
+        toggles[key] = new_val
 
+    save_toggles(toggles)
 def get_toggle_states():
     """Central access to current toggle states."""
     return {key: st.session_state.get(key, True) for key in TOGGLE_KEYS.keys()}
