@@ -64,6 +64,15 @@ if has_admin_access:
 
                 with st.expander("🧱 Config Panel"):
                     show_partner_admin()
+col1, col2 = st.columns(2)
+if col1.button("✏️ Edit Partner"):
+    st.success("Ready to edit. Make your changes below.")
+
+if col2.button("🗑️ Delete Partner"):
+    del configs[selected]
+    PartnerConfigHelper.save_config(selected=None, config_data=configs)
+    st.warning(f"Partner '{selected}' deleted. Refresh the page.")
+    st.stop()
 
             st.markdown("### 📄 Changelog")
             display_changelog()
