@@ -53,19 +53,28 @@ if has_admin_access:
             
 # Partner Mode + Config Panel logic...
 
-            partner_mode = st.session_state.get("partner_mode", False)
-            if st.button("✅ Enable Partner Mode" if not partner_mode else "❌ Disable Partner Mode"):
-                st.session_state["partner_mode"] = not partner_mode
+           if is_admin:
+    with st.sidebar:
+        st.markdown("## 🧩 White-Label Settings")
+
+        partner_mode = st.session_state.get("partner_mode", False)
+        if st.button("✅ Enable Partner Mode" if not partner_mode else "❌ Disable Partner Mode"):
+            st.session_state["partner_mode"] = not partner_mode
+            st.experimental_rerun()
+
+        if st.session_state.get("partner_mode", False):
+            config_panel_open = st.session_state.get("show_partner_config_panel", False)
+            if st.button("⚙️ " + ("Close" if config_panel_open else "Open") + " Config Panel"):
+                st.session_state["show_partner_config_panel"] = not config_panel_open
                 st.experimental_rerun()
 
-            if st.session_state.get("partner_mode", False):
-                config_panel_open = st.session_state.get("show_partner_config_panel", False)
-                if st.button("⚙️ " + ("Close" if config_panel_open else "Open") + " Config Panel"):
-                    st.session_state["show_partner_config_panel"] = not config_panel_open
-                    st.experimental_rerun()
+            with st.expander("🧱 Config Panel"):
+                show_partner_admin()
 
-                with st.expander("🧱 Config Panel"):
-                    show_partner_admin()
+        st.markdown("### 📄 Changelog")
+        display_changelog()
+
+            
 col1, col2 = st.columns(2)
 if col1.button("✏️ Edit Partner"):
     st.success("Ready to edit. Make your changes below.")
@@ -75,10 +84,7 @@ if col2.button("🗑️ Delete Partner"):
     PartnerConfigHelper.save_config(selected=None, config_data=configs)
     st.warning(f"Partner '{selected}' deleted. Refresh the page.")
     st.stop()
-
-            st.markdown("### 📄 Changelog")
-            display_changelog()
-
+    
     render_admin_sidebar()
 
 # ✅ Test Mode
