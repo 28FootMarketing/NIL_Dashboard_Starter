@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-# ✅ Utility Imports
+# Utility Imports
 from utils.quiz_logic import run_quiz
 from utils.content_templates import generate_template
 from utils.nil_score import calculate_score
@@ -25,12 +25,8 @@ st.set_page_config(page_title="NextPlay NIL", layout="centered")
 if "selected_sport" not in st.session_state:
     st.session_state["selected_sport"] = "Football"
 
-# ✅ Admin Access Check
+# ✅ Admin Mode
 is_admin = check_admin_access()
-toggle_states = get_toggle_states()
-partner_config = get_partner_config()
-
-# ✅ Admin UI
 if is_admin:
     render_admin_banner()
     show_admin_dashboard()
@@ -41,16 +37,16 @@ if is_admin:
     with st.sidebar.expander("📄 View Changelog"):
         display_changelog()
 
-    # ✅ Partner Mode Toggle
-    with st.sidebar:
-        st.markdown("### 🎛️ Partner Settings Panel")
-        partner_mode_toggle = st.checkbox("Enable Partner Mode", key="partner_mode")
-        st.session_state["partner_mode"] = partner_mode_toggle
+# ✅ Partner Mode Toggle (Safe Assignment)
+if "partner_mode" not in st.session_state:
+    st.session_state["partner_mode"] = False
+partner_mode_toggle = st.sidebar.checkbox("🎛️ Enable Partner Mode", value=st.session_state["partner_mode"])
+st.session_state["partner_mode"] = partner_mode_toggle
 
-    if st.session_state.get("partner_mode", False):
-        st.success("✅ Partner Mode is Active")
-        st.header("🧩 Partner Mode Dashboard")
-        show_partner_toggle_panel()
+# ✅ Partner Mode Dashboard
+if is_admin and st.session_state["partner_mode"]:
+    st.header("🧩 Partner Mode Dashboard")
+    show_partner_toggle_panel()
 
 # ✅ Test Mode
 test_mode = st.sidebar.checkbox("🧪 Enable Test Mode (Safe Demo)", key="test_mode_checkbox")
@@ -58,12 +54,16 @@ if test_mode:
     st.sidebar.warning("Test Mode is ON — No data will be saved or emailed.")
     st.markdown("### ⚠️ TEST MODE: No data will be sent or stored.", unsafe_allow_html=True)
 
+# ✅ Load Toggles
+toggle_states = get_toggle_states()
+partner_config = get_partner_config()
+
 # ✅ Sponsored Header Ad
 if toggle_states.get("admin_toggle_enable_ads", False) and partner_config.get("partner_toggle_enable_partner_ads", False):
     st.markdown("### 📢 Sponsored Message")
     show_ad(location="header_ad", sport=st.session_state.get("selected_sport", "Football"))
 
-# ✅ Branding
+# ✅ App Branding
 st.title("🏈 NextPlay NIL")
 st.subheader("Own your brand. Win your next play.")
 st.subheader("Your NIL Strategy & Branding Assistant")
@@ -135,8 +135,7 @@ if toggle_states.get("admin_toggle_step_7", True) and partner_config.get("partne
             record_to_sheet(name, email, school)
             success, email_body = send_email(name, email, quiz_score)
         else:
-            pd.DataFrame([[name, email, school, quiz_score]], columns=["Name", "Email", "School", "Score"]) \
-              .to_csv("test_mode_log.csv", mode="a", index=False, header=False)
+            pd.DataFrame([[name, email, school, quiz_score]], columns=["Name", "Email", "School", "Score"])               .to_csv("test_mode_log.csv", mode="a", index=False, header=False)
             success = True
             email_body = get_email_body(name, quiz_score)
 
