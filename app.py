@@ -1,4 +1,3 @@
-
 # app.py
 
 import streamlit as st
@@ -64,47 +63,6 @@ if is_admin:
         st.markdown("### 📄 Changelog")
         display_changelog()
 
-# ✅ Admin Sidebar: Partner Mode + Partner Config Panel Toggles
-if is_admin:
-    with st.sidebar:
-        st.markdown("## 🧩 Partner Controls")
-
-        # Toggle Partner Mode
-        if st.button("✅ Enable Partner Mode" if not st.session_state.get("partner_mode", False) else "❌ Disable Partner Mode"):
-            st.session_state["partner_mode"] = not st.session_state.get("partner_mode", False)
-            st.rerun()
-
-        # Toggle Partner Config Panel
-        if st.session_state.get("partner_mode", False):
-            if st.button("⚙️ Open Partner Config Panel"):
-                st.session_state["show_partner_config_panel"] = not st.session_state.get("show_partner_config_panel", False)
-
-
-# ✅ Admin Sidebar Controls
-if is_admin:
-    with st.sidebar:
-        if st.button("🧩 Enable Partner Mode"):
-            st.session_state["partner_mode"] = True
-            st.rerun()  # Optional: refresh app state
-        if st.session_state.get("partner_mode", False):
-            if st.button("⚙️ Open Partner Config Panel"):
-                st.session_state["show_partner_config_panel"] = True
-
-# ✅ Partner Mode
-if st.session_state.get("partner_mode", False):
-    PartnerDashboard().render()
-    with st.sidebar:
-        if st.button("🧩 Toggle Partner Config Panel"):
-            st.session_state["show_partner_config_panel"] = not st.session_state["show_partner_config_panel"]
-        PartnerConfigHelper.render_toggle_panel()
-
-    with st.sidebar.expander("📄 View Changelog"):
-        display_changelog()
-
-# ✅ Partner Config Panel UI 
-if st.session_state.get("partner_mode", False) and st.session_state.get("show_partner_config_panel", False):
-    show_partner_admin()
-
 # ✅ Test Mode
 test_mode = st.sidebar.checkbox("🧪 Enable Test Mode (Safe Demo)")
 if test_mode:
@@ -152,7 +110,7 @@ if toggle_states.get("step_2", True):
 
 # ✅ Step 3: Deal Builder Wizard
 if toggle_states.get("step_3", True):
-    st.header("🧾 Step 3: NIL Deal Builder Wizard")
+    st.header("🗾 Step 3: NIL Deal Builder Wizard")
     run_wizard()
 
 # ✅ Step 4: Pitch Deck Generator
