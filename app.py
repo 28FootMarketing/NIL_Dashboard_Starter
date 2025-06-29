@@ -1,5 +1,3 @@
-# app.py
-
 import streamlit as st
 import pandas as pd
 
@@ -41,15 +39,14 @@ if has_admin_access:
     show_admin_dashboard()
 
     with st.sidebar:
-    st.markdown("## 🧩 White-Label Settings")
+        st.markdown("## 🧩 White-Label Settings")
 
-    partner_mode = st.session_state.get("partner_mode", False)
-    toggle_label = "✅ Enable Partner Mode" if not partner_mode else "❌ Disable Partner Mode"
+        partner_mode = st.session_state.get("partner_mode", False)
+        toggle_label = "✅ Enable Partner Mode" if not partner_mode else "❌ Disable Partner Mode"
 
-    if st.button(toggle_label):
-        st.session_state["partner_mode"] = not partner_mode
-        st.experimental_rerun()  # ✅ Safe to call here because it is in a user interaction block
-
+        if st.button(toggle_label):
+            st.session_state["partner_mode"] = not partner_mode
+            st.experimental_rerun()
 
         # Show Partner Config Panel if enabled
         if st.session_state.get("partner_mode", False):
