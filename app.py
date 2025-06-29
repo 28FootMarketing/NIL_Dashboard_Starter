@@ -36,7 +36,17 @@ is_admin = check_admin_access()
 if is_admin:
     render_admin_banner()
     show_admin_dashboard()
+partner_config = PartnerConfigHelper.get_config()
 
+has_admin_access = is_admin and partner_config.get("partner_tier") == "Gold"
+
+if has_admin_access:
+    render_admin_banner()
+    show_admin_dashboard()
+
+    with st.sidebar:
+        st.markdown("## 🧩 White-Label Settings")
+        ...
     def render_admin_sidebar():
         with st.sidebar:
             st.markdown("## 🧩 White-Label Settings")
