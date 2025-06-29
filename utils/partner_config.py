@@ -1,10 +1,9 @@
-# utils/partner_config.py
-
 import os
 import json
+from pathlib import Path
 import streamlit as st
 
-CONFIG_PATH = "utils/partner_configs.json"
+CONFIG_PATH = Path(__file__).parent / "partner_configs.json"
 
 DEFAULT_CONFIGS = {
     "default_partner": {
@@ -23,46 +22,58 @@ DEFAULT_CONFIGS = {
     }
 }
 
-
 class PartnerConfigHelper:
 
     @staticmethod
     def initialize_defaults():
-        """Create config file if it does not exist."""
-        if not os.path.exists(CONFIG_PATH):
-            with open(CONFIG_PATH, "w") as f:
-                json.dump(DEFAULT_CONFIGS, f, indent=2)
+        """Create config file if missing or corrupted."""
+        if not CONFIG_PATH.exists():
+            CONFIG_PATH.write_text(json.dumps(DEFAULT_CONFIGS, indent=2))
+        else:
+            try:
+                with CONFIG_PATH.open("r") as f:
+                    json.load(f)
+            except json.JSONDecodeError:
+                CONFIG_PATH.write_text(json.dumps(DEFAULT_CONFIGS, indent=2))
 
     @staticmethod
     def load_configs():
-        """Load all partner configs."""
-        if not os.path.exists(CONFIG_PATH):
-            PartnerConfigHelper.initialize_defaults()
-        with open(CONFIG_PATH, "r") as f:
+        """Load all partner configs from disk safely."""
+        PartnerConfigHelper.initialize_defaults()
+        with CONFIG_PATH.open("r") as f:
             return json.load(f)
 
     @staticmethod
     def get_config(partner_id="default_partner"):
-        """Retrieve config for current or default partner."""
+        """Retrieve specific or default partner config."""
         configs = PartnerConfigHelper.load_configs()
         return configs.get(partner_id, DEFAULT_CONFIGS["default_partner"])
 
     @staticmethod
     def save_config(partner_id, config_data):
-        """Save updated config for a given partner."""
+        """Save updated config to disk."""
         configs = PartnerConfigHelper.load_configs()
         configs[partner_id] = config_data
-        with open(CONFIG_PATH, "w") as f:
+        with CONFIG_PATH.open("w") as f:
             json.dump(configs, f, indent=2)
 
     @staticmethod
-    def render_toggle_panel():
-        """Optional: Show partner toggles visually (for admins)."""
-        config = PartnerConfigHelper.get_config()
-        with st.expander("⚙️ Partner Toggles"):
-            st.markdown(f"**Brand:** {config['brand_name']}")
+    def delete_config(partner_id):
+        """Remove a partner config (optional admin tool)."""
+        configs = PartnerConfigHelper.load_configs()
+        if partner_id in configs:
+            del configs[partner_id]
+            with CONFIG_PATH.open("w") as f:
+                json.dump(configs, f, indent=2)
+
+    @staticmethod
+    def render_toggle_panel(partner_id="default_partner"):
+        """Show visual preview of partner settings (for admins only)."""
+        config = PartnerConfigHelper.get_config(partner_id)
+        with st.expander(f"⚙️ {config['brand_name']} Settings Preview"):
             st.markdown(f"**Tagline:** {config['tagline']}")
-            st.color_picker("Primary Color", config["primary_color"], key="panel_primary_color")
+            st.image(config["logo_url"], width=120)
+            st.color_picker("Primary Color", config["primary_color"], key=f"preview_color_{partner_id}")
             st.write("Feature Access:")
-            for feature, value in config["features"].items():
-                st.checkbox(f"{feature.replace('_', ' ').title()}", value=value, key=f"panel_{feature}")
+            for feat, val in config["features"].items():
+                st.checkbox(f"{feat.replace('_', ' ').title()}", value=val, key=f"preview_feat_{feat}_{partner_id}")
