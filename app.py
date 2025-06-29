@@ -170,3 +170,5 @@ if toggle_states.get("step_7", True):
 
 # ✅ Leaderboard
 display_leaderboard()
+with st.expander("🧠 Session Debug"):
+    st.json(st.session_state)
