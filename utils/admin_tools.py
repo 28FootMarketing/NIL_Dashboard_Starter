@@ -18,10 +18,10 @@ TOGGLE_KEYS = {
 }
 
 def check_admin_access():
-   """Ensure Admin Mode toggle is only created once."""
+    """Safely return Admin Mode toggle without re-registering Streamlit key."""
     if "admin_mode_checkbox" not in st.session_state:
-        st.session_state.admin_mode_checkbox = st.sidebar.checkbox("👑 Admin Mode")
-    return st.session_state.admin_mode_checkbox
+        st.session_state["admin_mode_checkbox"] = st.sidebar.checkbox("👑 Admin Mode", key="admin_mode_checkbox")
+    return st.session_state["admin_mode_checkbox"]
 
 def show_admin_dashboard():
     """Show toggles to manage visibility of app sections."""
