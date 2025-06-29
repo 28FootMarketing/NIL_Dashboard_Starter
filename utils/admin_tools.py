@@ -1,6 +1,5 @@
 import streamlit as st
 from utils.logger import log_change
-from utils.persistent_toggle_store import load_toggles, save_toggles
 
 # Central toggle label mapping for sidebar checkboxes
 TOGGLE_KEYS = {
@@ -14,30 +13,26 @@ TOGGLE_KEYS = {
     "show_pitch_deck": "Enable Pitch Deck Generator",
     "toggle_contract": "Show Contract Generator",
     "toggle_contact_form": "Lock Contact Form",
-    "enable_ads": "Enable Ads",
+    "enable_ads": "Enable Ads"
 }
 
+# ✅ Now only reads the checkbox state instead of redrawing it
 def check_admin_access():
     return st.session_state.get("admin_mode_checkbox", False)
 
 def show_admin_dashboard():
     """Show toggles to manage visibility of app sections."""
     st.sidebar.subheader("🛠️ Admin Controls")
-    toggles = load_toggles()
-
     for key, label in TOGGLE_KEYS.items():
-        prev = toggles.get(key, True)
-        new_val = st.sidebar.checkbox(label, value=prev)
+        prev = st.session_state.get(key, True)
+        new_val = st.sidebar.checkbox(label, value=prev, key=f"toggle_{key}")
         if new_val != prev:
             log_change(f"Toggled '{label}' from {prev} to {new_val}", actor="Admin")
         st.session_state[key] = new_val
-        toggles[key] = new_val
 
-    save_toggles(toggles)
 def get_toggle_states():
     """Central access to current toggle states."""
     return {key: st.session_state.get(key, True) for key in TOGGLE_KEYS.keys()}
 
 def render_admin_banner():
-    """Visual indicator that admin mode is active."""
     st.markdown("🚨 **Admin Mode Active** — Use toggles to control app visibility.", unsafe_allow_html=True)
