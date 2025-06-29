@@ -1,3 +1,5 @@
+# app.py
+
 import streamlit as st
 import pandas as pd
 
@@ -29,12 +31,11 @@ if "selected_sport" not in st.session_state:
 # ✅ Partner Config Defaults
 PartnerConfigHelper.initialize_defaults()
 
-# ✅ Admin Mode and Partner Tier Check
+# ✅ Admin Mode
 partner_config = PartnerConfigHelper.get_config()
 is_admin = check_admin_access()
 has_admin_access = is_admin and partner_config.get("partner_tier") == "Gold"
 
-# ✅ Admin Banner + Dashboard
 if has_admin_access:
     render_admin_banner()
     show_admin_dashboard()
@@ -42,31 +43,26 @@ if has_admin_access:
     with st.sidebar:
         st.markdown("## 🧩 White-Label Settings")
 
-        # ✅ Partner Mode Toggle
+        # Toggle Partner Mode
         partner_mode = st.session_state.get("partner_mode", False)
-        toggle_button_label = "✅ Enable Partner Mode" if not partner_mode else "❌ Disable Partner Mode"
+        if st.button("✅ Enable Partner Mode" if not partner_mode else "❌ Disable Partner Mode"):
+            st.session_state["partner_mode"] = not partner_mode
+            st.experimental_rerun()
 
-       if st.button("✅ Enable Partner Mode" if not partner_mode else "❌ Disable Partner Mode"):
-    st.session_state["partner_mode"] = not partner_mode
-    st.experimental_rerun()
-
-        # ✅ Config Panel Toggle
+        # Show Partner Config Panel if enabled
         if st.session_state.get("partner_mode", False):
             config_panel_open = st.session_state.get("show_partner_config_panel", False)
-            config_button_label = "⚙️ Close Config Panel" if config_panel_open else "⚙️ Open Config Panel"
-
-            if st.button(config_button_label, key="toggle_config_panel"):
+            if st.button("⚙️ " + ("Close" if config_panel_open else "Open") + " Config Panel"):
                 st.session_state["show_partner_config_panel"] = not config_panel_open
                 st.experimental_rerun()
 
-            if st.session_state.get("show_partner_config_panel", False):
-                with st.expander("🧱 Config Panel", expanded=True):
-                    show_partner_admin()
+            with st.expander("🧱 Config Panel"):
+                show_partner_admin()
 
         st.markdown("### 📄 Changelog")
         display_changelog()
 
-# ✅ Test Mode Toggle
+# ✅ Test Mode
 with st.sidebar:
     test_mode = st.checkbox("🧪 Enable Test Mode (Safe Demo)")
     if test_mode:
@@ -155,7 +151,8 @@ if toggle_states.get("step_7", True):
                 record_to_sheet(name, email, school)
                 success, email_body = send_email(name, email, quiz_score)
             else:
-                pd.DataFrame([[name, email, school, quiz_score]], columns=["Name", "Email", "School", "Score"]).to_csv("test_mode_log.csv", mode="a", index=False, header=False)
+                pd.DataFrame([[name, email, school, quiz_score]], columns=["Name", "Email", "School", "Score"]) \
+                    .to_csv("test_mode_log.csv", mode="a", index=False, header=False)
                 success = True
                 email_body = get_email_body(name, quiz_score)
 
