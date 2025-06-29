@@ -1,6 +1,13 @@
 import streamlit as st
 from utils.partner_config import PartnerConfigHelper
 from utils.logger import log_change
+    
+tier = st.selectbox(
+        "Partner Tier",
+        ["Bronze", "Silver", "Gold"],
+        index=["Bronze", "Silver", "Gold"].index(current.get("partner_tier", "Bronze")),
+        key="partner_tier"
+    )
 
 def show_partner_admin():
     st.header("🔧 White-Label Partner Manager")
@@ -37,12 +44,13 @@ def show_partner_admin():
         submit = st.form_submit_button("💾 Save Changes")
 
     if submit:
-        updated_config = {
-            "brand_name": st.session_state[brand_key],
-            "tagline": st.session_state[tagline_key],
-            "primary_color": st.session_state[color_key],
-            "logo_url": st.session_state[logo_key],
-            "contact_email": st.session_state[email_key],
+                updated = {
+            "brand_name": st.session_state.brand_name,
+            "tagline": st.session_state.tagline,
+            "primary_color": st.session_state.primary_color,
+            "logo_url": st.session_state.logo_url,
+            "contact_email": st.session_state.contact_email,
+            "partner_tier": st.session_state.partner_tier,  # ⬅️ Save tier
             "features": {
                 "pitch_deck": pitch,
                 "deal_builder": deal,
@@ -50,6 +58,7 @@ def show_partner_admin():
                 "admin_tools": admin
             }
         }
+
 
         PartnerConfigHelper.save_config(selected, updated_config)
         log_change(f"Updated config for partner: {selected}", actor="Admin")
