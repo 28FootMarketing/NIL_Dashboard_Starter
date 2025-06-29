@@ -17,6 +17,7 @@ from utils.partner_admin import show_partner_admin
 from utils.advertisements import show_ad
 from utils.partner_config import get_partner_config, show_partner_toggle_panel
 from utils.changelog_viewer import display_changelog
+from utils.admin_debug import render_admin_debug_panel
 
 # ✅ Page Setup
 st.set_page_config(page_title="NextPlay NIL", layout="centered")
@@ -66,6 +67,10 @@ with st.sidebar:
             if st.button("💾 Save Partner Message"):
                 st.session_state["partner_message"] = msg
 
+    # Inside `if is_admin:`
+        with st.sidebar.expander("🛠️ Live Admin Panel"):
+        render_admin_debug_panel()
+    
 # ✅ Partner Mode Dashboard
 if is_admin and st.session_state["partner_mode"]:
     st.header("🧩 Partner Mode Dashboard")
