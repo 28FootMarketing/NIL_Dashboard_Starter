@@ -46,9 +46,9 @@ if has_admin_access:
         partner_mode = st.session_state.get("partner_mode", False)
         toggle_button_label = "✅ Enable Partner Mode" if not partner_mode else "❌ Disable Partner Mode"
 
-        if st.button(toggle_button_label, key="toggle_partner_mode"):
-            st.session_state["partner_mode"] = not partner_mode
-            st.experimental_rerun()
+       if st.button("✅ Enable Partner Mode" if not partner_mode else "❌ Disable Partner Mode"):
+    st.session_state["partner_mode"] = not partner_mode
+    st.experimental_rerun()
 
         # ✅ Config Panel Toggle
         if st.session_state.get("partner_mode", False):
