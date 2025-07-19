@@ -98,7 +98,7 @@ def main():
             for i, query in enumerate(reversed(st.session_state.query_history[-5:])):
                 if st.button(f"💭 {query[:30]}...", key=f"recent_{i}"):
                     st.session_state.current_query = query
-                    st.experimental_rerun()
+                    st.rerun()
         
         # Clear history
         if st.button("🗑️ Clear History"):
