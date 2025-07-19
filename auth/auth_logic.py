@@ -1,34 +1,28 @@
-import streamlit as st
 import json
 import os
 
-# Load roles from local file
-def load_roles():
-    path = "data/user_roles.json"
-    if not os.path.exists(path):
-        return {}
-    with open(path, "r") as f:
-        return json.load(f)
+CRED_FILE = "./data/user_credentials.json"
 
-# Simulated login (email + password combo)
+def load_credentials():
+    if os.path.exists(CRED_FILE):
+        with open(CRED_FILE, "r") as f:
+            return json.load(f)
+    return {}
+
+def save_credentials(creds):
+    with open(CRED_FILE, "w") as f:
+        json.dump(creds, f, indent=2)
+
 def login(email, password):
-    roles = load_roles()
-    if email in roles:
-        if password == "password123":  # Dev-only fallback password
-            st.session_state["logged_in"] = True
-            st.session_state["email"] = email
-            st.session_state["role"] = roles[email]
-            return True
+    creds = load_credentials()
+    if email in creds and creds[email] == password:
+        st.session_state["logged_in"] = True
+        st.session_state["email"] = email
+        return True
     return False
 
-# Check session login state
-def is_logged_in():
-    return st.session_state.get("logged_in", False)
-
-# Get current user role
-def get_user_role():
-    return st.session_state.get("role", "guest")
-
-# Logout helper
-def logout():
-    st.session_state.clear()
+def reset_password(email, new_password):
+    creds = load_credentials()
+    creds[email] = new_password
+    save_credentials(creds)
+    return True
