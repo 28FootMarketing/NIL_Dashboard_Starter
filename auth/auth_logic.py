@@ -20,3 +20,19 @@ def get_user_role(email):
     with open(ROLES_PATH, "r") as f:
         roles = json.load(f)
     return roles.get(email, "user")
+
+def reset_password(email, new_password):
+    if not os.path.exists(CREDENTIALS_PATH):
+        return False
+    with open(CREDENTIALS_PATH, "r") as f:
+        credentials = json.load(f)
+
+    if email not in credentials:
+        return False  # Email not found
+
+    credentials[email] = new_password
+
+    with open(CREDENTIALS_PATH, "w") as f:
+        json.dump(credentials, f, indent=4)
+
+    return True
