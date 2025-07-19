@@ -6,3 +6,4 @@ plotly
 pytz
 gspread
 oauth2client
+supabase==1.0.3
