@@ -27,7 +27,8 @@ def main():
                 st.markdown("### Welcome, Admin 👑")
                 show_dashboard(user_role=user_role)
                 role_editor()
-
+ if toggle_flags.get("allow_register", False):
+        register_user_modal()
             elif user_role == "coach":
                 st.markdown("### Coach Portal 🧢")
                 show_dashboard(user_role=user_role)
