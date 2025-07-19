@@ -1,16 +1,34 @@
 import streamlit as st
-from auth.auth_config import supabase
+import json
+import os
 
+# Load roles from local file
+def load_roles():
+    path = "data/user_roles.json"
+    if not os.path.exists(path):
+        return {}
+    with open(path, "r") as f:
+        return json.load(f)
+
+# Simulated login (email + password combo)
 def login(email, password):
-    result = supabase.auth.sign_in_with_password({
-        "email": email,
-        "password": password
-    })
-    st.session_state.user = result.user
+    roles = load_roles()
+    if email in roles:
+        if password == "password123":  # Universal dev password
+            st.session_state["logged_in"] = True
+            st.session_state["email"] = email
+            st.session_state["role"] = roles[email]
+            return True
+    return False
 
+# Check session login state
 def is_logged_in():
-    return "user" in st.session_state
+    return st.session_state.get("logged_in", False)
 
-def get_user_role(email):
-    # Pull from Supabase or local JSON
-    return "coach" if email.endswith("@school.org") else "athlete"
+# Get current user role
+def get_user_role():
+    return st.session_state.get("role", "guest")
+
+# Logout helper
+def logout():
+    st.session_state.clear()
