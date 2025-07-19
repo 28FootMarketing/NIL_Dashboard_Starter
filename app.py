@@ -32,6 +32,43 @@ if "user" not in st.session_state:
     st.warning("Please log in from the sidebar.")
     st.stop()
 
+
+# --- UI Toggles and Settings Panel ---
+st.sidebar.markdown("## 🛠️ Dashboard Settings")
+
+# --- Role-specific features ---
+st.sidebar.subheader("🔐 Access Control")
+lock_session = st.sidebar.checkbox("Lock Session (Disable Role Switching)", value=True)
+admin_mode = st.sidebar.toggle("Admin Mode")
+
+# --- AI Behavior Options ---
+st.sidebar.subheader("🧠 AI Response Options")
+coaching_tone = st.sidebar.toggle("Enable Coaching Tone", value=False)
+classify_intent = st.sidebar.checkbox("Query Classification Mode", value=True)
+summarize_response = st.sidebar.checkbox("Auto Summarize Response", value=True)
+
+# --- Logging and History ---
+st.sidebar.subheader("🗃 Logging & Export")
+log_queries = st.sidebar.checkbox("Log All Queries", value=True)
+local_only_log = st.sidebar.checkbox("Local Session Logging Only", value=False)
+export_button = st.sidebar.button("📁 Export Filtered History to CSV")
+
+supabase_sync = st.sidebar.toggle("Enable Supabase Sync", value=False)
+
+# --- Chart Display Options ---
+st.sidebar.subheader("📊 Analytics Controls")
+show_charts = st.sidebar.toggle("Show Charts", value=True)
+time_range = st.sidebar.selectbox("Time Range Filter", ["Today", "Last 7 Days", "Custom Range"])
+search_scope = st.sidebar.radio("Search Scope", ["Query Only", "Response Only", "All Fields"])
+group_by = st.sidebar.radio("Group Chart Data By", ["Role", "Category"])
+
+# --- Personalization & UX ---
+st.sidebar.subheader("🎨 Personalization")
+dark_mode = st.sidebar.toggle("Dark Mode", value=False)
+font_size = st.sidebar.slider("Font Size", 12, 24, 16)
+typing_effect = st.sidebar.checkbox("Simulate AI Typing Effect", value=False)
+
+
 # Google Sheets integration
 def log_to_sheets(row):
     try:
