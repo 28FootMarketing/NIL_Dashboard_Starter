@@ -1,52 +1,22 @@
 import json
 import os
-import streamlit as st
 
-# File paths
-CRED_FILE = "./data/user_credentials.json"
-ROLE_FILE = "./data/user_roles.json"
+CREDENTIALS_PATH = "data/user_credentials.json"
+ROLES_PATH = "data/user_roles.json"
 
-# Load credentials from JSON
-def load_credentials():
-    if os.path.exists(CRED_FILE):
-        with open(CRED_FILE, "r") as f:
-            return json.load(f)
-    return {}
-
-# Save credentials to JSON
-def save_credentials(creds):
-    with open(CRED_FILE, "w") as f:
-        json.dump(creds, f, indent=2)
-
-# Load roles from JSON
-def load_roles():
-    if os.path.exists(ROLE_FILE):
-        with open(ROLE_FILE, "r") as f:
-            return json.load(f)
-    return {}
-
-# Get the user's assigned role
-def get_user_role(email):
-    roles = load_roles()
-    return roles.get(email, "guest")
-
-# Login function
 def login(email, password):
-    creds = load_credentials()
-    if email in creds and creds[email] == password:
-        st.session_state["logged_in"] = True
-        st.session_state["email"] = email
-        st.session_state["user_role"] = get_user_role(email)
-        return True
-    return False
+    if not os.path.exists(CREDENTIALS_PATH):
+        return False
+    with open(CREDENTIALS_PATH, "r") as f:
+        credentials = json.load(f)
+    return credentials.get(email) == password
 
-# Check if user is logged in
-def is_logged_in():
-    return st.session_state.get("logged_in", False)
+def is_logged_in(email):
+    return email is not None and email != ""
 
-# Password reset
-def reset_password(email, new_password):
-    creds = load_credentials()
-    creds[email] = new_password
-    save_credentials(creds)
-    return True
+def get_user_role(email):
+    if not os.path.exists(ROLES_PATH):
+        return None
+    with open(ROLES_PATH, "r") as f:
+        roles = json.load(f)
+    return roles.get(email, "user")
