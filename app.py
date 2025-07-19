@@ -5,7 +5,247 @@ import time
 
 # Page configuration
 st.set_page_config(
-    page_title="NIL Agent - AI Assistant",
+    page_title="NIL Agent - AI Assistant",import streamlit as st
+import requests
+import json
+import time
+from datetime import datetime
+
+# Page configuration
+st.set_page_config(
+    page_title="NIL Agent Assistant",
+    page_icon="🏆",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Custom CSS for better styling
+st.markdown("""
+<style>
+    .main-header {
+        font-size: 3rem;
+        font-weight: bold;
+        text-align: center;
+        background: linear-gradient(90deg, #FF6B6B, #4ECDC4);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 2rem;
+    }
+    
+    .stChat {
+        background-color: #f8f9fa;
+        border-radius: 10px;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .success-box {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        border-radius: 5px;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .error-box {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 5px;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .info-box {
+        background-color: #e2e3e5;
+        border: 1px solid #d6d8db;
+        border-radius: 5px;
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Main title
+st.markdown('<h1 class="main-header">🏆 NIL Agent Assistant</h1>', unsafe_allow_html=True)
+st.markdown("### Get expert guidance on Name, Image, and Likeness challenges")
+
+# Sidebar configuration
+with st.sidebar:
+    st.header("⚙️ Configuration")
+    
+    # N8N Webhook URL input
+    webhook_url = st.text_input(
+        "N8N Webhook URL",
+        placeholder="https://your-n8n-instance.com/webhook/nil-agent",
+        help="Enter the full URL of your N8N webhook endpoint"
+    )
+    
+    st.markdown("---")
+    
+    # API Settings
+    st.subheader("🔧 API Settings")
+    timeout_duration = st.slider("Request Timeout (seconds)", 5, 30, 15)
+    
+    st.markdown("---")
+    
+    # Session Statistics
+    if 'query_count' not in st.session_state:
+        st.session_state.query_count = 0
+    
+    st.subheader("📊 Session Stats")
+    st.metric("Queries Made", st.session_state.query_count)
+    
+    if st.button("Reset Session", type="secondary"):
+        st.session_state.query_count = 0
+        st.session_state.messages = []
+        st.rerun()
+
+# Initialize chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# Function to make API call to N8N
+def call_nil_agent(query, webhook_url):
+    """Make API call to N8N webhook"""
+    try:
+        payload = {"query": query}
+        
+        response = requests.post(
+            webhook_url,
+            json=payload,
+            headers={"Content-Type": "application/json"},
+            timeout=timeout_duration
+        )
+        
+        response.raise_for_status()
+        return response.json()
+        
+    except requests.exceptions.Timeout:
+        return {"success": False, "error": "Request timed out. Please try again."}
+    except requests.exceptions.ConnectionError:
+        return {"success": False, "error": "Failed to connect to the NIL Agent API. Please check the webhook URL."}
+    except requests.exceptions.HTTPError as e:
+        return {"success": False, "error": f"HTTP error occurred: {e}"}
+    except requests.exceptions.RequestException as e:
+        return {"success": False, "error": f"Request failed: {e}"}
+    except json.JSONDecodeError:
+        return {"success": False, "error": "Invalid JSON response from API"}
+
+# Display chat messages
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        if message["role"] == "assistant":
+            # Display structured response for assistant
+            if "data" in message:
+                data = message["data"]
+                if data.get("success"):
+                    st.markdown(f"**Problem:** {data.get('problem_title', 'N/A')}")
+                    if data.get("problem_found"):
+                        st.markdown(f"**Category:** {data.get('problem_category', 'General')}")
+                        st.markdown(f"**Description:** {data.get('problem_description', 'N/A')}")
+                    st.markdown("**AI Response:**")
+                    st.markdown(data.get("ai_response", "No response available"))
+                else:
+                    st.error(f"Error: {data.get('error', 'Unknown error occurred')}")
+            else:
+                st.markdown(message["content"])
+        else:
+            st.markdown(message["content"])
+
+# Chat input
+if prompt := st.chat_input("Ask your NIL question here..."):
+    # Check if webhook URL is provided
+    if not webhook_url:
+        st.error("⚠️ Please enter your N8N webhook URL in the sidebar before asking questions.")
+        st.stop()
+    
+    # Add user message to chat history
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    
+    # Display user message
+    with st.chat_message("user"):
+        st.markdown(prompt)
+    
+    # Display assistant response
+    with st.chat_message("assistant"):
+        with st.spinner("Consulting NIL database and AI..."):
+            # Make API call
+            response_data = call_nil_agent(prompt, webhook_url)
+            
+            # Update session stats
+            st.session_state.query_count += 1
+            
+            if response_data.get("success"):
+                # Display successful response
+                st.markdown(f"**Problem Found:** {response_data.get('problem_title', 'N/A')}")
+                
+                if response_data.get("problem_found"):
+                    st.success("✅ Matched to existing NIL problem in database")
+                    st.markdown(f"**Description:** {response_data.get('problem_description', 'N/A')}")
+                else:
+                    st.info("ℹ️ No specific match found - providing general NIL guidance")
+                
+                st.markdown("**AI Response:**")
+                ai_response = response_data.get("ai_response", "No response available")
+                st.markdown(ai_response)
+                
+                # Add timestamp
+                st.caption(f"Response generated at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+                
+                # Store response in session
+                st.session_state.messages.append({
+                    "role": "assistant", 
+                    "content": ai_response,
+                    "data": response_data
+                })
+                
+            else:
+                # Display error
+                error_msg = response_data.get("error", "Unknown error occurred")
+                st.error(f"❌ {error_msg}")
+                
+                st.session_state.messages.append({
+                    "role": "assistant", 
+                    "content": f"Sorry, I encountered an error: {error_msg}",
+                    "data": response_data
+                })
+
+# Information section
+with st.expander("ℹ️ How to use this NIL Agent"):
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("""
+        **Getting Started:**
+        1. Enter your N8N webhook URL in the sidebar
+        2. Ask any NIL-related question in the chat
+        3. Get AI-powered responses based on the NIL database
+        
+        **Example Questions:**
+        - "What are the rules for athlete endorsements?"
+        - "Can I sell my autographs as a student athlete?"
+        - "How do NIL deals affect my scholarship?"
+        """)
+    
+    with col2:
+        st.markdown("""
+        **Features:**
+        - 🔍 Smart problem matching from NIL database
+        - 🤖 AI-generated responses using GPT-4
+        - 📊 Session statistics tracking
+        - ⚡ Real-time API integration with N8N
+        - 💬 Chat-style interface for easy interaction
+        
+        **Need Help?**
+        Check your N8N webhook URL and ensure the workflow is active.
+        """)
+
+# Footer
+st.markdown("---")
+st.markdown(
+    "🔗 **Powered by N8N Workflow** | Built with Streamlit | NIL Agent Assistant v1.0",
+    unsafe_allow_html=True
+)
     page_icon="🏈",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -78,12 +318,12 @@ def main():
         st.markdown("### 🔗 N8N Webhook Settings")
         
         # Default webhook URL from your n8n workflow
-        default_webhook_url = "https://your-n8n-instance.com/webhook/ca17d568-b816-40d9-a06b-e498e8659750"
+        default_webhook_url = "https://n8n.srv891270.hstgr.cloud/webhook/nil-agent"
         
         webhook_url = st.text_input(
             "N8N Webhook URL",
             value=default_webhook_url,
-            help="Enter your n8n webhook URL here"
+            help="https://n8n.srv891270.hstgr.cloud/webhook/nil-agent"
         )
         
         # Test connection button
