@@ -6,6 +6,8 @@ from modules.Team_Admin_Panel import role_editor
 from toggles.toggle_flags import load_toggle_flags
 from modules.toggle_editor import toggle_control_panel
 
+# ✅ Load toggle flags once at the top so all components can use them
+toggle_flags = load_toggle_flags()
 
 def main():
     st.set_page_config(page_title="🏆 NIL Agent Dashboard", layout="wide")
