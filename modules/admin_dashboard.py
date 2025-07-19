@@ -1,4 +1,7 @@
 import streamlit as st
+import os
+import json
+
 from modules.Team_Admin_Panel import role_editor
 from modules.toggle_editor import toggle_control_panel
 from modals.register_user_modal import register_user_modal
@@ -6,18 +9,25 @@ from modules.admin_feedback_viewer import show_feedback_logs
 from modules.admin_quick_tools import admin_utilities
 from toggles.toggle_flags import load_toggle_flags
 
-# Optional: Restrict full access to internal superadmins only
+# List of emails with full access regardless of toggle settings
 INTERNAL_ADMINS = ["founder@example.com"]
 
 
-def admin_dashboard(user_email):
+def admin_dashboard(user_email: str):
     st.title("🔧 Admin Control Panel")
 
-    if user_email not in INTERNAL_ADMINS:
+    # Check internal admin override
+    full_access = user_email in INTERNAL_ADMINS
+    if not full_access:
         st.warning("You have limited admin access.")
 
-    toggle_flags = load_toggle_flags()
+    try:
+        toggle_flags = load_toggle_flags()
+    except Exception as e:
+        st.error(f"Failed to load feature toggles: {e}")
+        toggle_flags = {}
 
+    # Define the tab layout
     tabs = st.tabs([
         "📊 Dashboard Overview",
         "🔐 Roles & Access",
@@ -27,34 +37,50 @@ def admin_dashboard(user_email):
         "⚙️ Quick Tools"
     ])
 
+    # === Overview Tab ===
     with tabs[0]:
         st.subheader("📊 System Snapshot")
-        st.info("Coming soon: live user/session stats, active toggles, last login")
+        st.info("Live metrics coming soon (users, sessions, logins, active toggles)")
 
+    # === Role Manager Tab ===
     with tabs[1]:
         st.subheader("🔐 Role Manager")
-        role_editor()
+        try:
+            role_editor()
+        except Exception as e:
+            st.error(f"Role editor failed to load: {e}")
 
+    # === Toggle Manager Tab ===
     with tabs[2]:
         st.subheader("🧰 Manage Feature Toggles")
-        toggle_control_panel()
+        try:
+            toggle_control_panel()
+        except Exception as e:
+            st.error(f"Toggle panel failed: {e}")
 
+    # === Manual Registration Tab ===
     with tabs[3]:
-        st.subheader("➕ Manually Register a New User")
-        if toggle_flags.get("allow_register", False) or user_email in INTERNAL_ADMINS:
-            register_user_modal()
+        st.subheader("➕ Register a New User")
+        if toggle_flags.get("allow_register", False) or full_access:
+            try:
+                register_user_modal()
+            except Exception as e:
+                st.error(f"Could not load registration module: {e}")
         else:
-            st.info("User registration is currently disabled via toggles.")
+            st.info("User registration is currently disabled by toggles.")
 
+    # === Feedback Tab ===
     with tabs[4]:
         st.subheader("📝 Tester Feedback Logs")
-        show_feedback_logs()
+        try:
+            show_feedback_logs()
+        except Exception as e:
+            st.error(f"Could not load feedback logs: {e}")
 
+    # === Utilities Tab ===
     with tabs[5]:
         st.subheader("⚙️ System Tools & Exports")
-        admin_utilities()
-
-
-# Example usage in app.py or main dashboard
-# if user_role == "admin":
-#     admin_dashboard(user_email=email)
+        try:
+            admin_utilities()
+        except Exception as e:
+            st.error(f"Utilities panel failed: {e}")
