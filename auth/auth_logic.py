@@ -30,3 +30,17 @@ def register_user(email, password, role="user"):
     }
     save_user_db(db)
     return {"success": True, "message": "Registration successful."}
+# auth_logic.py
+
+def login(email, password):
+    # login logic
+    return True
+
+def is_logged_in():
+    return True
+
+def get_user_role(email=None):
+    return "admin"
+
+def reset_password(email, new_password):
+    return True
