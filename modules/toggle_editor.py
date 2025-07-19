@@ -20,7 +20,6 @@ def toggle_control_panel():
     flags = load_toggle_flags()
     allow_register = flags.get("allow_register", False)
 
-    # Visual Toggle with Label
     updated_allow_register = st.toggle("📝 Enable User Registration (Admin only)", value=allow_register)
 
     if updated_allow_register != allow_register:
