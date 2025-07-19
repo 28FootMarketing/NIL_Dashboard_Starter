@@ -13,7 +13,12 @@ def role_editor():
         with col1:
             st.text(email)
         with col2:
-            new_role = st.selectbox("Role", ["admin", "coach", "athlete", "guest"], index=["admin", "coach", "athlete", "guest"].index(data["role"]), key=email)
+            roles = ["admin", "coach", "athlete", "guest"] 
+            current_role = data.get("role", "guest")
+            default_index = roles.index(current_role) if current_role in roles else roles.index("guest")
+
+new_role = st.selectbox("Role", roles, index=default_index, key=email)
+= st.selectbox("Role", ["admin", "coach", "athlete", "guest"], index=["admin", "coach", "athlete", "guest"].index(data["role"]), key=email)
             editable_roles[email] = new_role
 
     if st.button("💾 Save Role Changes"):
