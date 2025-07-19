@@ -11,9 +11,6 @@ def main():
     st.set_page_config(page_title="🏆 NIL Agent Dashboard", layout="wide")
     st.title("🏆 NIL Agent Dashboard")
 
-    # Registration Modal (Admin-only by default, can be toggled)
-    register_user_modal()
-
     # Login Fields
     email = st.text_input("Email")
     password = st.text_input("Password", type="password")
@@ -23,11 +20,15 @@ def main():
             st.success("✅ Login successful")
             user_role = get_user_role(email)
 
+            # Load toggle flags AFTER login to allow admin logic
+            toggle_flags = load_toggle_flags()
+
             # 🔐 Gate Route Logic
             if user_role == "admin":
+                st.markdown("### Welcome, Admin 👑")
                 show_dashboard(user_role=user_role)
                 role_editor()
-                toggle_control_panel()  # Shows visual toggle manager
+                toggle_control_panel()  # Admin toggle manager
                 if toggle_flags.get("allow_register", False):
                     register_user_modal()
 
@@ -43,7 +44,6 @@ def main():
                 st.error("🚫 Access Denied")
                 st.markdown("It looks like your role does not currently grant access to this dashboard.")
                 st.info("Please contact your administrator for support or role updates.")
-                st.markdown("You may [log out](#) or close this window.")
                 st.session_state["authenticated"] = False
                 st.experimental_rerun()
 
