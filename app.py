@@ -33,7 +33,7 @@ def main():
 
 # Optional password reset toggle
 with st.expander("🔑 Forgot your password? Reset it here"):
-    reset_email = st.text_input("Reset Email", key="reset_email")
+    reset_email = st.text_input("Reset Email", key="reset_email_modal")
     new_pass = st.text_input("New Password", type="password", key="new_pass")
     confirm_pass = st.text_input("Confirm New Password", type="password", key="confirm_pass")
 
