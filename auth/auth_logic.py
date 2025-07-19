@@ -1,46 +1,39 @@
 import json
 import os
-import streamlit as st
-import hashlib
 
-USER_DB_FILE = "data/user_db.json"
+CRED_FILE = os.path.join("data", "user_credentials.json")
+ROLE_FILE = os.path.join("data", "user_roles.json")
 
-def hash_password(password):
-    return hashlib.sha256(password.encode()).hexdigest()
 
-def load_user_db():
-    if not os.path.exists(USER_DB_FILE):
-        return {}
-    with open(USER_DB_FILE, "r") as file:
-        return json.load(file)
+def register_user(email, password, role="guest"):
+    email = email.strip().lower()
 
-def save_user_db(db):
-    with open(USER_DB_FILE, "w") as file:
-        json.dump(db, file, indent=4)
+    # Load or initialize credential store
+    if os.path.exists(CRED_FILE):
+        with open(CRED_FILE, "r") as f:
+            credentials = json.load(f)
+    else:
+        credentials = {}
 
-def register_user(email, password, role="user"):
-    db = load_user_db()
+    if os.path.exists(ROLE_FILE):
+        with open(ROLE_FILE, "r") as f:
+            roles = json.load(f)
+    else:
+        roles = {}
 
-    if email in db:
-        return {"success": False, "error": "User already exists."}
+    # Check for existing account
+    if email in credentials:
+        return False, "User already exists."
 
-    db[email] = {
-        "password": hash_password(password),
-        "role": role
-    }
-    save_user_db(db)
-    return {"success": True, "message": "Registration successful."}
-# auth_logic.py
+    # Add new user
+    credentials[email] = {"password": password}
+    roles[email] = {"role": role}
 
-def login(email, password):
-    # login logic
-    return True
+    # Save changes
+    with open(CRED_FILE, "w") as f:
+        json.dump(credentials, f, indent=2)
 
-def is_logged_in():
-    return True
+    with open(ROLE_FILE, "w") as f:
+        json.dump(roles, f, indent=2)
 
-def get_user_role(email=None):
-    return "admin"
-
-def reset_password(email, new_password):
-    return True
+    return True, "User registered successfully."
