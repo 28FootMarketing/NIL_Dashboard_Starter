@@ -3,6 +3,7 @@ from modules.NIL_Dashboard_Toggles_All import show_dashboard
 from modules.admin_dashboard import admin_dashboard
 from auth.auth_logic import login, is_logged_in, get_user_role, reset_password
 from toggles.toggle_flags import load_toggle_flags
+from modals.register_user_modal import register_user_modal
 
 def main():
     st.set_page_config(page_title="🏆 NIL Agent Dashboard", layout="wide")
