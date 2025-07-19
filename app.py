@@ -3,7 +3,43 @@ from modules.NIL_Dashboard_Toggles_All import show_dashboard
 from auth.auth_logic import login, is_logged_in, get_user_role
 from auth.auth_logic import reset_password
 from modals.register_user_modal import register_user_modal
+from auth.auth_logic import get_user_role
+from modules.Team_Admin_Panel import role_editor
+from modules.NIL_Dashboard_Toggles_All import show_dashboard
+# Add any other modules you want to show based on roles
 
+def main():
+    st.set_page_config(page_title="NIL Dashboard", layout="wide")
+
+    # Collect login info
+    email = st.text_input("Email")
+    password = st.text_input("Password", type="password")
+
+    if login(email, password):
+        st.success("✅ Login successful")
+        user_role = get_user_role()
+
+        # 🔐 Gate Route Logic
+        if user_role == "admin":
+            st.markdown("### Welcome, Admin 👑")
+            show_dashboard()
+            role_editor()  # Show role manager UI
+            # Add other admin-exclusive tools here
+
+        elif user_role == "coach":
+            st.markdown("### Coach Portal 🧢")
+            show_dashboard()
+            # Add coach tools
+
+        elif user_role == "athlete":
+            st.markdown("### Athlete Hub 🏅")
+            show_dashboard()
+            # Add athlete tools
+
+        else:
+            st.warning("🚫 Limited Access")
+    else:
+        st.warning("❌ Incorrect login. Try again.")
 with st.expander("Forgot Password?"):
     reset_email = st.text_input("Email to reset password", key="reset_email")
     new_password = st.text_input("New Password", type="password", key="new_pw")
