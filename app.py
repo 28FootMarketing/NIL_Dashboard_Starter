@@ -1,63 +1,86 @@
 import streamlit as st
-from modules.NIL_Dashboard_Toggles_All import show_dashboard
-from modules.admin_dashboard import admin_dashboard
-from auth.auth_logic import login, is_logged_in, get_user_role, reset_password
+import os
+import json
+
+from modules.Team_Admin_Panel import role_editor
+from modules.toggle_editor import toggle_control_panel
+from modals.register_user_modal import register_user_modal
+from modules.admin_feedback_viewer import show_feedback_logs
+from modules.admin_quick_tools import admin_utilities
 from toggles.toggle_flags import load_toggle_flags
 
-def main():
-    st.set_page_config(page_title="🏆 NIL Agent Dashboard", layout="wide")
-    st.title("🏆 NIL Agent Dashboard")
+# List of emails with full access regardless of toggle settings
+INTERNAL_ADMINS = ["founder@example.com"]
 
-    # --- Login Fields ---
-    email = st.text_input("Email")
-    password = st.text_input("Password", type="password")
 
-    if st.button("Login"):
-        if not email or not password:
-            st.error("Email and password are required.")
-        elif login(email, password):
-            st.success("✅ Login successful")
-            user_role = get_user_role(email)
+def admin_dashboard(user_email: str):
+    st.title("🔧 Admin Control Panel")
 
-            # === Gated Route Logic ===
-            if user_role == "admin":
-                admin_dashboard(user_email=email)
+    # Check internal admin override
+    full_access = user_email in INTERNAL_ADMINS
+    if not full_access:
+        st.warning("You have limited admin access.")
 
-            elif user_role == "coach":
-                st.markdown("### Coach Portal 🧢")
-                show_dashboard(user_role=user_role)
+    try:
+        toggle_flags = load_toggle_flags()
+    except Exception as e:
+        st.error(f"Failed to load feature toggles: {e}")
+        toggle_flags = {}
 
-            elif user_role == "athlete":
-                st.markdown("### Athlete Hub 🏅")
-                show_dashboard(user_role=user_role)
+    # Define the tab layout
+    tabs = st.tabs([
+        "📊 Dashboard Overview",
+        "🔐 Roles & Access",
+        "🧰 Feature Toggles",
+        "➕ User Registration",
+        "📝 Tester Feedback Logs",
+        "⚙️ Quick Tools"
+    ])
 
-            else:
-                st.error("🚫 Access Denied")
-                st.markdown("It looks like your role does not currently grant access to this dashboard.")
-                st.info("Please contact your administrator for support or role updates.")
-                st.session_state["authenticated"] = False
-                st.experimental_rerun()
+    # === Overview Tab ===
+    with tabs[0]:
+        st.subheader("📊 System Snapshot")
+        st.info("Live metrics coming soon (users, sessions, logins, active toggles)")
 
+    # === Role Manager Tab ===
+    with tabs[1]:
+        st.subheader("🔐 Role Manager")
+        try:
+            role_editor()
+        except Exception as e:
+            st.error(f"Role editor failed to load: {e}")
+
+    # === Toggle Manager Tab ===
+    with tabs[2]:
+        st.subheader("🧰 Manage Feature Toggles")
+        try:
+            toggle_control_panel()
+        except Exception as e:
+            st.error(f"Toggle panel failed: {e}")
+
+    # === Manual Registration Tab ===
+    with tabs[3]:
+        st.subheader("➕ Register a New User")
+        if toggle_flags.get("allow_register", False) or full_access:
+            try:
+                register_user_modal()
+            except Exception as e:
+                st.error(f"Could not load registration module: {e}")
         else:
-            st.error("❌ Invalid email or password")
+            st.info("User registration is currently disabled by toggles.")
 
-    # --- Optional Password Reset Section ---
-    with st.expander("🔑 Forgot your password? Reset it here"):
-        reset_email = st.text_input("Reset Email", key="reset_email_modal")
-        new_pass = st.text_input("New Password", type="password", key="new_pass")
-        confirm_pass = st.text_input("Confirm New Password", type="password", key="confirm_pass")
+    # === Feedback Tab ===
+    with tabs[4]:
+        st.subheader("📝 Tester Feedback Logs")
+        try:
+            show_feedback_logs()
+        except Exception as e:
+            st.error(f"Could not load feedback logs: {e}")
 
-        if st.button("Reset Password", key="reset_btn"):
-            if not reset_email or not new_pass or not confirm_pass:
-                st.error("Please fill in all fields.")
-            elif new_pass != confirm_pass:
-                st.error("Passwords do not match.")
-            else:
-                success = reset_password(reset_email, new_pass)
-                if success:
-                    st.success("Password reset successfully. Please log in with your new credentials.")
-                else:
-                    st.error("Something went wrong. Try again or contact support.")
-
-if __name__ == "__main__":
-    main()
+    # === Utilities Tab ===
+    with tabs[5]:
+        st.subheader("⚙️ System Tools & Exports")
+        try:
+            admin_utilities()
+        except Exception as e:
+            st.error(f"Utilities panel failed: {e}")
