@@ -66,8 +66,9 @@ st.dataframe(mock_data)
 
 # Charts
 st.subheader("🧠 Top NIL Question Categories")
-fig1 = px.bar(mock_data['category'].value_counts().reset_index(), x='index', y='category',
-              labels={'index': 'Category', 'category': 'Count'}, color='index')
+category_counts = mock_data['category'].value_counts().reset_index()
+category_counts.columns = ['Category', 'Count']
+fig1 = px.bar(category_counts, x='Category', y='Count', labels={'Category': 'Category', 'Count': 'Count'}, color='Category')
 st.plotly_chart(fig1, use_container_width=True)
 
 st.subheader("👥 User Role Distribution")
