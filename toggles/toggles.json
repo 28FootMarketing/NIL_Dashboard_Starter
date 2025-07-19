@@ -1,0 +1,7 @@
+{
+  "allow_register": true,
+  "enable_pdf_export": true,
+  "enable_knowledge_tab": true,
+  "enable_team_viewer": true,
+  "enable_supabase_logging": false
+}
