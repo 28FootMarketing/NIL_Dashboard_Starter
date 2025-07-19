@@ -60,14 +60,11 @@ def admin_dashboard(user_email: str):
 
     # === Manual Registration Tab ===
     with tabs[3]:
-        st.subheader("➕ Register a New User")
-        if toggle_flags.get("allow_register", False) or full_access:
-            try:
-                register_user_modal()
-            except Exception as e:
-                st.error(f"Could not load registration module: {e}")
-        else:
-            st.info("User registration is currently disabled by toggles.")
+        st.subheader("➕ Manually Register a New User")
+    if toggle_flags.get("allow_register", False) or user_email in INTERNAL_ADMINS:
+        register_user_modal()
+    else:
+        st.info("User registration is currently disabled via toggles.")
 
     # === Feedback Tab ===
     with tabs[4]:
