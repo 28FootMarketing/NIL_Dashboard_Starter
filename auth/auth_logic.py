@@ -14,7 +14,7 @@ def load_roles():
 def login(email, password):
     roles = load_roles()
     if email in roles:
-        if password == "password123":  # Universal dev password
+        if password == "password123":  # Dev-only fallback password
             st.session_state["logged_in"] = True
             st.session_state["email"] = email
             st.session_state["role"] = roles[email]
