@@ -76,8 +76,8 @@ with st.sidebar:
     # N8N Webhook URL input
     webhook_url = st.text_input(
         "N8N Webhook URL",
-        placeholder="https://your-n8n-instance.com/webhook/nil-agent",
-        help="Enter the full URL of your N8N webhook endpoint"
+        placeholder="https://n8n.srv891270.hstgr.cloud/webhook/nil-agent",
+        help="https://n8n.srv891270.hstgr.cloud/webhook/nil-agent"
     )
     
     st.markdown("---")
