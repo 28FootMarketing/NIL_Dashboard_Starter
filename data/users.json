@@ -1,0 +1,8 @@
+{
+  "admin@example.com": {
+    "password": "5e88489...hashed"
+  },
+  "athlete1@example.com": {
+    "password": "a94a8fe...hashed"
+  }
+}
