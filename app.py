@@ -136,7 +136,7 @@ def main():
         with col_clear:
             if st.button("🔄 Clear Query", use_container_width=True):
                 st.session_state.current_query = ""
-                st.experimental_rerun()
+                st.rerun()
         
         st.markdown('</div>', unsafe_allow_html=True)
         
@@ -164,7 +164,7 @@ def main():
         for query in example_queries:
             if st.button(f"💭 {query}", key=f"example_{query}", use_container_width=True):
                 st.session_state.current_query = query
-                st.experimental_rerun()
+                st.rerun()
 
 def test_connection(webhook_url):
     """Test the n8n webhook connection"""
