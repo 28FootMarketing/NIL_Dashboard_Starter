@@ -2,6 +2,7 @@ import streamlit as st
 from modules.NIL_Dashboard_Toggles_All import show_dashboard
 from auth.auth_logic import login, is_logged_in, get_user_role
 from auth.auth_logic import reset_password
+from modals.register_user_modal import register_user_modal
 
 with st.expander("Forgot Password?"):
     reset_email = st.text_input("Email to reset password", key="reset_email")
@@ -30,6 +31,7 @@ def main():
             show_dashboard(user_role=role)
         else:
             st.error("❌ Invalid email or password")
+register_user_modal()
 
 # Optional password reset toggle
 with st.expander("🔑 Forgot your password? Reset it here"):
