@@ -1,18 +1,27 @@
-from auth.auth_logic import login, is_logged_in, get_user_role
-from panels.admin_panel import show_admin_panel
+import streamlit as st
 from modules.NIL_Dashboard_Toggles_All import show_dashboard
+from auth.auth_logic import login, is_logged_in, get_user_role
 
-if not is_logged_in():
+def main():
+    st.set_page_config(page_title="🏆 NIL Agent Dashboard", layout="wide")
+
+    st.title("🏆 NIL Agent Dashboard")
+
+    # Authentication logic
     email = st.text_input("Email")
     password = st.text_input("Password", type="password")
-    if st.button("Login"):
-        login(email, password)
-        st.rerun()
-else:
-    user_role = get_user_role(st.session_state.user.email)
-    st.sidebar.success(f"Logged in as {user_role}")
 
-    if user_role == "coach":
-        show_admin_panel()
-    else:
-        show_dashboard()
+    if st.button("Login"):
+        if login(email, password):
+            st.success("✅ Login successful")
+            role = get_user_role(email)
+            show_dashboard(user_role=role)
+        else:
+            st.error("❌ Invalid email or password")
+
+    if is_logged_in():
+        role = get_user_role(email)
+        show_dashboard(user_role=role)
+
+if __name__ == "__main__":
+    main()
