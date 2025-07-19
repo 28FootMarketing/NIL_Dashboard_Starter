@@ -11,8 +11,8 @@ def login(email, password):
         credentials = json.load(f)
     return credentials.get(email) == password
 
-def is_logged_in(email):
-    return email is not None and email != ""
+def is_logged_in():
+    return st.session_state.get("is_authenticated", False)
 
 def get_user_role(email):
     if not os.path.exists(ROLES_PATH):
