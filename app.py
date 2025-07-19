@@ -4,6 +4,7 @@ from auth.auth_logic import login, is_logged_in, get_user_role, reset_password
 from modals.register_user_modal import register_user_modal
 from modules.Team_Admin_Panel import role_editor
 from toggles.toggle_flags import load_toggle_flags
+from modules.toggle_editor import toggle_control_panel
 
 
 def main():
