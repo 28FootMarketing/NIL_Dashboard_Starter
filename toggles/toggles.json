@@ -4,5 +4,5 @@
   "enable_knowledge_tab": true,
   "enable_team_viewer": true,
   "enable_supabase_logging": false
-  "allow_register": true
+  "allow_register": false
 }
