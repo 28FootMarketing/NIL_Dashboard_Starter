@@ -5,14 +5,11 @@ from modals.register_user_modal import register_user_modal
 from modules.Team_Admin_Panel import role_editor
 from toggles.toggle_flags import load_toggle_flags
 from modules.toggle_editor import toggle_control_panel
-
+from modules.admin_dashboard import admin_dashboard
 
 def main():
     st.set_page_config(page_title="🏆 NIL Agent Dashboard", layout="wide")
     st.title("🏆 NIL Agent Dashboard")
-
-    # Load toggle settings
-    toggle_flags = load_toggle_flags()
 
     # Login Fields
     email = st.text_input("Email")
@@ -26,18 +23,11 @@ def main():
         if login(email, password):
             st.success("✅ Login successful")
             user_role = get_user_role(email)
-            st.session_state["authenticated"] = True
-            st.session_state["user_email"] = email
-            st.session_state["user_role"] = user_role
 
             # 🔐 Gate Route Logic
             if user_role == "admin":
                 st.markdown("### Welcome, Admin 👑")
-                show_dashboard(user_role=user_role)
-                role_editor()
-                toggle_control_panel(user_role)  # Secured toggle panel
-                if toggle_flags.get("allow_register", False):
-                    register_user_modal()
+                admin_dashboard()  # Full admin control center
 
             elif user_role == "coach":
                 st.markdown("### Coach Portal 🧢")
@@ -49,9 +39,11 @@ def main():
 
             else:
                 st.error("🚫 Access Denied")
-                st.markdown("Your role does not grant access to this dashboard.")
+                st.markdown("It looks like your role does not currently grant access to this dashboard.")
+                st.info("Please contact your administrator for support or role updates.")
                 st.session_state["authenticated"] = False
                 st.experimental_rerun()
+
         else:
             st.error("❌ Invalid email or password")
 
@@ -72,7 +64,6 @@ def main():
                     st.success("Password reset successfully. Please log in with your new credentials.")
                 else:
                     st.error("Something went wrong. Try again or contact support.")
-
 
 if __name__ == "__main__":
     main()
