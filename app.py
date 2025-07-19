@@ -1,6 +1,8 @@
 import streamlit as st
 from modules.NIL_Dashboard_Toggles_All import show_dashboard
 from auth.auth_logic import login, is_logged_in, get_user_role
+from auth.auth_logic import reset_password
+
 with st.expander("Forgot Password?"):
     reset_email = st.text_input("Email to reset password", key="reset_email")
     new_password = st.text_input("New Password", type="password", key="new_pw")
@@ -28,6 +30,24 @@ def main():
             show_dashboard(user_role=role)
         else:
             st.error("❌ Invalid email or password")
+
+# Optional password reset toggle
+with st.expander("🔑 Forgot your password? Reset it here"):
+    reset_email = st.text_input("Reset Email", key="reset_email")
+    new_pass = st.text_input("New Password", type="password", key="new_pass")
+    confirm_pass = st.text_input("Confirm New Password", type="password", key="confirm_pass")
+
+    if st.button("Reset Password", key="reset_btn"):
+        if not reset_email or not new_pass or not confirm_pass:
+            st.error("Please fill in all fields.")
+        elif new_pass != confirm_pass:
+            st.error("Passwords do not match.")
+        else:
+            success = reset_password(reset_email, new_pass)
+            if success:
+                st.success("Password reset successfully. Please log in with your new credentials.")
+            else:
+                st.error("Something went wrong. Try again or contact support.")
 
     if is_logged_in():
         role = get_user_role(email)
