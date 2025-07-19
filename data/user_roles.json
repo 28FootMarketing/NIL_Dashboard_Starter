@@ -7,4 +7,8 @@
   "parent1@support.org": "parent",
   "parent2@support.org": "parent",
   "guest@trial.com": "guest"
+// user_roles.json
+
+  "admin@example.com": "admin",
+  "coach@example.com": "coach"
 }
