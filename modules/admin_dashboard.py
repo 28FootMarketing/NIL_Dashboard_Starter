@@ -1,47 +1,31 @@
 import streamlit as st
-from modals.register_user_modal import register_user_modal
+from modules.NIL_Dashboard_Toggles_All import show_dashboard
 from modules.Team_Admin_Panel import role_editor
 from modules.toggle_editor import toggle_control_panel
-import json
-import os
+from modals.register_user_modal import register_user_modal
+from toggles.toggle_flags import load_toggle_flags
 
-
-def admin_dashboard(user_role):
+def render_admin_dashboard():
     st.title("👑 Admin Control Center")
+    st.markdown("Welcome, Administrator. Use the panels below to manage system features and users.")
 
-    tab1, tab2, tab3 = st.tabs(["📊 Overview", "🧑‍💼 User Management", "🎛️ Toggles"])
+    # Section 1: Dashboard Preview
+    with st.expander("📊 NIL Dashboard Overview"):
+        show_dashboard(user_role="admin")
 
-    with tab1:
-        st.subheader("📊 System Overview")
-
-        # Load user roles
-        role_file = "./data/user_roles.json"
-        if os.path.exists(role_file):
-            with open(role_file, "r") as f:
-                users = json.load(f)
-
-            role_counts = {"admin": 0, "coach": 0, "athlete": 0, "guest": 0}
-            for u in users.values():
-                role = u.get("role", "guest")
-                if role in role_counts:
-                    role_counts[role] += 1
-
-            st.metric("Admins", role_counts["admin"])
-            st.metric("Coaches", role_counts["coach"])
-            st.metric("Athletes", role_counts["athlete"])
-            st.metric("Guests", role_counts["guest"])
-        else:
-            st.info("No user role data found.")
-
-    with tab2:
-        st.subheader("🧑‍💼 Manage Users")
+    # Section 2: Role & Access Management
+    with st.expander("🔐 Manage User Roles"):
+        st.info("Edit user roles (admin, coach, athlete, guest) to control access.")
         role_editor()
-        st.markdown("---")
-        register_user_modal()
 
-    with tab3:
-        st.subheader("🎛️ Toggle Switchboard")
+    # Section 3: Feature Toggles
+    with st.expander("🧰 System Feature Toggles"):
+        st.info("Enable or disable key features using toggle switches below.")
         toggle_control_panel()
 
-    st.markdown("---")
-    st.caption("Only visible to admins. You are logged in as: {}".format(user_role))
+    # Section 4: Manual Registration (if toggle allows)
+    toggle_flags = load_toggle_flags()
+    if toggle_flags.get("allow_register", False):
+        with st.expander("➕ Manual User Registration"):
+            st.info("Register new users directly from the admin panel.")
+            register_user_modal()
