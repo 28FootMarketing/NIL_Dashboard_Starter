@@ -25,11 +25,11 @@ def main():
 
             # 🔐 Gate Route Logic
             if user_role == "admin":
-    show_dashboard(user_role=user_role)
-    role_editor()
-    toggle_control_panel()  # Shows visual toggle manager
-    if toggle_flags.get("allow_register", False):
-        register_user_modal()
+                show_dashboard(user_role=user_role)
+                role_editor()
+                toggle_control_panel()  # Shows visual toggle manager
+                if toggle_flags.get("allow_register", False):
+                    register_user_modal()
 
             elif user_role == "coach":
                 st.markdown("### Coach Portal 🧢")
