@@ -1,5 +1,10 @@
 {
-  "admin@example.com": "admin",
-  "athlete1@example.com": "athlete",
-  "coach@example.com": "coach"
+  "admin@example.com": {
+    "password": "StrongPass123",
+    "role": "admin"
+  },
+  "coach@example.com": {
+    "password": "Coach456",
+    "role": "coach"
+  }
 }
