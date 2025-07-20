@@ -1,5 +1,6 @@
 import streamlit as st
 from auth.auth_logic import register_user
+from auth.auth_logic import hash_password
 
 def register_user_modal():
     st.markdown("### ➕ Register a New User")
@@ -29,3 +30,4 @@ def register_user_modal():
                     st.success(message)
                 else:
                     st.error(message)
+user_data["password"] = hash_password(password)
