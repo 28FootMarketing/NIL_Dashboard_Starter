@@ -40,3 +40,15 @@ def reset_password(email, new_password):
         save_user_data(users)
         return True
     return False
+
+def register_user(email, hashed_password, role):
+    users = load_user_data()
+    if email in users:
+        return False, "User already exists."
+
+    users[email] = {
+        "password": hashed_password,
+        "role": role
+    }
+    save_user_data(users)
+    return True, "User registered successfully."
