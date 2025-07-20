@@ -1,6 +1,5 @@
 import streamlit as st
-from auth.auth_logic import register_user
-from auth.auth_logic import hash_password
+from auth.auth_logic import register_user, hash_password
 
 def register_user_modal():
     st.markdown("### ➕ Register a New User")
@@ -15,7 +14,7 @@ def register_user_modal():
         submitted = st.form_submit_button("Register User")
 
         if submitted:
-            # Basic validation
+            # === Basic Validation ===
             if not email:
                 st.error("Email is required.")
             elif len(password) < 8:
@@ -25,9 +24,15 @@ def register_user_modal():
             elif role not in roles:
                 st.error("Invalid role selected.")
             else:
-                success, message = register_user(email, password, role)
-                if success:
-                    st.success(message)
-                else:
-                    st.error(message)
-user_data["password"] = hash_password(password)
+                # === Securely hash the password BEFORE registering ===
+                hashed_pw = hash_password(password)
+
+                # === Try to register ===
+                try:
+                    success, message = register_user(email, hashed_pw, role)
+                    if success:
+                        st.success(message)
+                    else:
+                        st.error(message)
+                except Exception as e:
+                    st.error(f"Registration failed: {e}")
