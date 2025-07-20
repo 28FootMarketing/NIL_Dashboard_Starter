@@ -6,20 +6,18 @@ LOG_FILE = "./logs/audit_log.pdf"
 
 def log_event(event_type, email, message=""):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    entry = f"[{timestamp}] [{event_type.upper()}] {email}: {message}"
+    log_entry = f"[{timestamp}] [{event_type}] {email}: {message}"
 
-    # If PDF doesn't exist, create it with a header
-    if not os.path.exists(LOG_FILE):
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Arial", size=12)
-        pdf.multi_cell(0, 10, "📄 NIL Agent System Audit Log\n\n", align="L")
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+    pdf.multi_cell(0, 10, log_entry)
+    
+    if os.path.exists(LOG_FILE):
+        with open(LOG_FILE, "rb") as f:
+            old_data = f.read()
+        with open(LOG_FILE, "wb") as f:
+            pdf.output(f)
+            f.write(old_data)
     else:
-        pdf = FPDF()
-        pdf.add_page()
-        pdf.set_font("Arial", size=12)
-        pdf.set_auto_page_break(auto=True, margin=15)
-        pdf.set_y(10)
-
-    pdf.multi_cell(0, 10, entry + "\n", align="L")
-    pdf.output(LOG_FILE, 'F')
+        pdf.output(LOG_FILE)
