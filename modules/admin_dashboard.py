@@ -12,11 +12,9 @@ from toggles.toggle_flags import load_toggle_flags
 # List of emails with full access regardless of toggle settings
 INTERNAL_ADMINS = ["founder@example.com"]
 
-
 def admin_dashboard(user_email: str):
     st.title("🔧 Admin Control Panel")
 
-    # Check internal admin override
     full_access = user_email in INTERNAL_ADMINS
     if not full_access:
         st.warning("You have limited admin access.")
@@ -27,7 +25,7 @@ def admin_dashboard(user_email: str):
         st.error(f"Failed to load feature toggles: {e}")
         toggle_flags = {}
 
-    # Define the tab layout
+    # Define tab layout
     tabs = st.tabs([
         "📊 Dashboard Overview",
         "🔐 Roles & Access",
@@ -37,12 +35,12 @@ def admin_dashboard(user_email: str):
         "⚙️ Quick Tools"
     ])
 
-    # === Overview Tab ===
+    # === Tab 0: System Snapshot ===
     with tabs[0]:
         st.subheader("📊 System Snapshot")
         st.info("Live metrics coming soon (users, sessions, logins, active toggles)")
 
-    # === Role Manager Tab ===
+    # === Tab 1: Role Manager ===
     with tabs[1]:
         st.subheader("🔐 Role Manager")
         try:
@@ -50,7 +48,7 @@ def admin_dashboard(user_email: str):
         except Exception as e:
             st.error(f"Role editor failed to load: {e}")
 
-    # === Toggle Manager Tab ===
+    # === Tab 2: Toggle Editor ===
     with tabs[2]:
         st.subheader("🧰 Manage Feature Toggles")
         try:
@@ -58,15 +56,18 @@ def admin_dashboard(user_email: str):
         except Exception as e:
             st.error(f"Toggle panel failed: {e}")
 
-    # === Manual Registration Tab ===
+    # === Tab 3: User Registration (Conditional) ===
     with tabs[3]:
         st.subheader("➕ Manually Register a New User")
-    if toggle_flags.get("allow_register", False) or user_email in INTERNAL_ADMINS:
-        register_user_modal()
-    else:
-        st.info("User registration is currently disabled via toggles.")
+        if toggle_flags.get("allow_register", False) or full_access:
+            try:
+                register_user_modal()
+            except Exception as e:
+                st.error(f"Registration modal failed: {e}")
+        else:
+            st.info("User registration is currently disabled via toggles.")
 
-    # === Feedback Tab ===
+    # === Tab 4: Feedback Viewer ===
     with tabs[4]:
         st.subheader("📝 Tester Feedback Logs")
         try:
@@ -74,7 +75,7 @@ def admin_dashboard(user_email: str):
         except Exception as e:
             st.error(f"Could not load feedback logs: {e}")
 
-    # === Utilities Tab ===
+    # === Tab 5: Admin Utilities ===
     with tabs[5]:
         st.subheader("⚙️ System Tools & Exports")
         try:
