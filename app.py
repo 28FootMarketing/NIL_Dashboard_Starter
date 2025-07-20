@@ -5,6 +5,7 @@ from modules.admin_dashboard import admin_dashboard
 from auth.auth_logic import login, is_logged_in, get_user_role, reset_password
 from toggles.toggle_flags import load_toggle_flags
 from modals.register_user_modal import register_user_modal
+from utils.audit_logger import log_event  # ✅ Add audit logger
 
 # --- 2. Session Setup ---
 if "authenticated" not in st.session_state:
@@ -14,7 +15,9 @@ if "user_email" not in st.session_state:
 if "user_role" not in st.session_state:
     st.session_state["user_role"] = ""
 
+# --- Logout Utility with Audit Log ---
 def logout():
+    log_event("logout", st.session_state.get("user_email", "unknown"), "User clicked logout")
     st.session_state["authenticated"] = False
     st.session_state["user_email"] = ""
     st.session_state["user_role"] = ""
@@ -37,11 +40,14 @@ def main():
                 st.session_state["authenticated"] = True
                 st.session_state["user_email"] = email
                 st.session_state["user_role"] = get_user_role(email)
+                log_event("login", email, f"User logged in as {st.session_state['user_role']}")
                 st.success(f"✅ Login successful as {st.session_state['user_role']}")
                 st.experimental_rerun()
             else:
                 st.error("❌ Invalid email or password")
+                log_event("login_failed", email, "Invalid credentials")
 
+        # Optional Password Reset
         with st.expander("🔑 Forgot your password? Reset it here"):
             reset_email = st.text_input("Reset Email", key="reset_email_modal")
             new_pass = st.text_input("New Password", type="password", key="new_pass")
@@ -56,8 +62,11 @@ def main():
                     success = reset_password(reset_email, new_pass)
                     if success:
                         st.success("Password reset successfully. Please log in with your new credentials.")
+                        log_event("password_reset", reset_email, "Password reset completed")
                     else:
                         st.error("Something went wrong. Try again or contact support.")
+                        log_event("password_reset_failed", reset_email, "Password reset failed")
+
     else:
         st.title("🏆 NIL Agent Dashboard")
         st.success(f"Logged in as {st.session_state['user_email']} ({st.session_state['user_role']})")
