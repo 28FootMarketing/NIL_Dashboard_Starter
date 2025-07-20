@@ -1,0 +1,7 @@
+from utils.log_event_to_pdf import log_event
+
+# After login()
+if login(email, password):
+    log_event("LOGIN_SUCCESS", email, "User logged in successfully.")
+else:
+    log_event("LOGIN_FAIL", email, "Invalid password attempt.")
