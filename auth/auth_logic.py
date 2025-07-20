@@ -33,3 +33,23 @@ def reset_password(email, new_password):
         save_user_data(users)
         return True
     return False
+
+def register_user(email, password, role):
+    users = load_user_data()
+
+    # Validation
+    if email in users:
+        return False  # Email already exists
+    if not email or "@" not in email:
+        return False  # Invalid email
+    if len(password) < 6:
+        return False  # Weak password
+    if role not in ["admin", "coach", "athlete", "guest"]:
+        return False  # Invalid role
+
+    users[email] = {
+        "password": password,
+        "role": role
+    }
+    save_user_data(users)
+    return True
