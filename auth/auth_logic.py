@@ -1,39 +1,35 @@
 import json
 import os
 
-CRED_FILE = os.path.join("data", "user_credentials.json")
-ROLE_FILE = os.path.join("data", "user_roles.json")
+USER_DB = "./data/user_roles.json"
 
+def load_user_data():
+    if os.path.exists(USER_DB):
+        with open(USER_DB, "r") as f:
+            return json.load(f)
+    return {}
 
-def register_user(email, password, role="guest"):
-    email = email.strip().lower()
+def save_user_data(data):
+    with open(USER_DB, "w") as f:
+        json.dump(data, f, indent=4)
 
-    # Load or initialize credential store
-    if os.path.exists(CRED_FILE):
-        with open(CRED_FILE, "r") as f:
-            credentials = json.load(f)
-    else:
-        credentials = {}
+def login(email, password):
+    users = load_user_data()
+    user = users.get(email)
+    return user and user.get("password") == password
 
-    if os.path.exists(ROLE_FILE):
-        with open(ROLE_FILE, "r") as f:
-            roles = json.load(f)
-    else:
-        roles = {}
+def is_logged_in(email):
+    users = load_user_data()
+    return email in users
 
-    # Check for existing account
-    if email in credentials:
-        return False, "User already exists."
+def get_user_role(email):
+    users = load_user_data()
+    return users.get(email, {}).get("role", "guest")
 
-    # Add new user
-    credentials[email] = {"password": password}
-    roles[email] = {"role": role}
-
-    # Save changes
-    with open(CRED_FILE, "w") as f:
-        json.dump(credentials, f, indent=2)
-
-    with open(ROLE_FILE, "w") as f:
-        json.dump(roles, f, indent=2)
-
-    return True, "User registered successfully."
+def reset_password(email, new_password):
+    users = load_user_data()
+    if email in users:
+        users[email]["password"] = new_password
+        save_user_data(users)
+        return True
+    return False
