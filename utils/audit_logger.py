@@ -1,15 +1,26 @@
 import json
-from datetime import datetime
 import os
+from datetime import datetime
 
-LOG_FILE = "./logs/audit_log.jsonl"
+LOG_FILE = "./logs/audit_log.json"
 
-def log_event(event_type, details):
-    os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+def log_event(event_type, user_email, message):
     log_entry = {
-        "timestamp": datetime.now().isoformat(),
         "event_type": event_type,
-        "details": details
+        "user": user_email,
+        "message": message,
+        "timestamp": datetime.now().isoformat()
     }
-    with open(LOG_FILE, "a") as f:
-        f.write(json.dumps(log_entry) + "\n")
+
+    try:
+        if not os.path.exists(LOG_FILE):
+            with open(LOG_FILE, "w") as f:
+                json.dump([log_entry], f, indent=4)
+        else:
+            with open(LOG_FILE, "r") as f:
+                logs = json.load(f)
+            logs.append(log_entry)
+            with open(LOG_FILE, "w") as f:
+                json.dump(logs, f, indent=4)
+    except Exception as e:
+        print(f"[Audit Log Error] {e}")
