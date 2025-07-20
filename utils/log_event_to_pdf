@@ -1,7 +1,25 @@
-from utils.log_event_to_pdf import log_event
+from fpdf import FPDF
+import os
+from datetime import datetime
 
-# After login()
-if login(email, password):
-    log_event("LOGIN_SUCCESS", email, "User logged in successfully.")
-else:
-    log_event("LOGIN_FAIL", email, "Invalid password attempt.")
+LOG_FILE = "./logs/audit_log.pdf"
+
+def log_event(event_type, email, message=""):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    entry = f"[{timestamp}] [{event_type.upper()}] {email}: {message}"
+
+    # If PDF doesn't exist, create it with a header
+    if not os.path.exists(LOG_FILE):
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(0, 10, "📄 NIL Agent System Audit Log\n\n", align="L")
+    else:
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+        pdf.set_auto_page_break(auto=True, margin=15)
+        pdf.set_y(10)
+
+    pdf.multi_cell(0, 10, entry + "\n", align="L")
+    pdf.output(LOG_FILE, 'F')
